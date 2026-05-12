@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia Care - Diabetes Management</title>
+    <meta name="description"
+        content="Dia Care: A smart diabetes management web app featuring digital health synergy, smart logging, and detailed reporting.">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script>
+        if (localStorage.getItem('diacare_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="info-section">
+            <div class="info-content">
+                <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+                    <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 15 10 L 55 10 C 100 10 100 90 55 90 L 15 90 Z" fill="white" />
+                        <path d="M 55 25 C 55 25 75 55 75 70 A 20 20 0 0 1 35 70 C 35 55 55 25 55 25 Z"
+                            fill="#ff6b6b" />
+                    </svg>
+                    <h1 style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.5px;">
+                        DiaCare</h1>
+                </div>
+                <h2 data-i18n="empoweringJourney">Empowering your health journey.</h2>
+                <p class="subtitle" data-i18n="experienceFuture">Experience the future of diabetes management.</p>
+
+                <ul class="features">
+                    <li>
+                        <div class="icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 data-i18n="digitalHealth">Digital Health Synergy</h3>
+                            <p data-i18n="digitalHealthDesc">Diabetes health records on a single, unified platform.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <line x1="12" y1="8" x2="12" y2="16" />
+                                <line x1="8" y1="12" x2="16" y2="12" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Smart Logging</h3>
+                            <p>Effortlessly track meals, insulin, and glucose levels with intelligent prediction.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                                <path d="M22 12A10 10 0 0 0 12 2v10z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Advanced Reporting</h3>
+                            <p>Visualize your progress with comprehensive, easy-to-understand analytics.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="background-decorations">
+                <div class="circle circle-1"></div>
+                <div class="circle circle-2"></div>
+            </div>
+        </div>
+
+        <div class="form-section" style="position: relative;">
+            <div style="position: absolute; top: 2rem; right: 2rem; display: flex; gap: 1rem; z-index: 10;">
+                <button id="theme-toggle"
+                    style="background: transparent; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; padding: 0.5rem;">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+                <button id="lang-toggle"
+                    style="background: var(--surface); border: 2px solid var(--border); color: var(--text-main); font-size: 0.9rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;">
+                    عربي
+                </button>
+            </div>
+            <div class="form-container">
+                <div class="tabs">
+                    <button class="tab active" id="tab-login" onclick="switchTab('login')" data-i18n="loginTab">Log
+                        In</button>
+                    <button class="tab" id="tab-signup" onclick="switchTab('signup')" data-i18n="signupTab">Sign
+                        Up</button>
+                </div>
+
+                <form id="form-login" class="form-active">
+                    <div class="form-header">
+                        <h2 data-i18n="welcomeBack">Welcome back</h2>
+                        <p data-i18n="enterDetails">Please enter your details to access your account.</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="login-email" data-i18n="emailLabel">Email Address</label>
+                        <input type="email" id="login-email" placeholder="name@example.com" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="login-password" data-i18n="passwordLabel">Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="remember-me">
+                            <span data-i18n="rememberMe">Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-password" data-i18n="forgotPassword">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn-primary" data-i18n="signInBtn">Log In</button>
+                </form>
+
+                <form id="form-signup" class="form-hidden">
+                    <div class="form-header">
+                        <h2>Create an account</h2>
+                        <p>Join Dia Care to start managing your diabetes smarter.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-group">
+                            <label for="signup-fname">First Name</label>
+                            <input type="text" id="signup-fname" placeholder="John" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-lname">Last Name</label>
+                            <input type="text" id="signup-lname" placeholder="Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" placeholder="name@example.com" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" placeholder="Create a strong password" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-group">
+                            <label for="signup-dob">Date of Birth</label>
+                            <input type="date" id="signup-dob" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-type">Diabetes Type</label>
+                            <select id="signup-type" required>
+                                <option value="" disabled selected>Select type...</option>
+                                <option value="type1">Type 1</option>
+                                <option value="type2">Type 2</option>
+                                <option value="gestational">Gestational</option>
+                                <option value="pediatric">Pediatric</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Create Account</button>
+
+                    <p class="terms">By signing up, you agree to our <a href="#">Terms of Service</a> and <a
+                            href="#">Privacy Policy</a>.</p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chatbot Widget -->
+    <div class="chatbot-widget" style="z-index: 9999;">
+        <button class="chatbot-btn" id="chatbot-toggle" title="Ask DiaCare AI" data-i18n-title="askDiaCareAITooltip">
+            <i class="fas fa-robot"></i>
+        </button>
+        <div class="chatbot-window" id="chatbot-window">
+            <div class="chat-header">
+                <h3 data-i18n="diaCareAI"><i class="fas fa-brain"></i> DiaCare AI</h3>
+                <button class="close-chat" id="chatbot-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message msg-ai" data-i18n="aiWelcome">
+                    Hello! I am your DiaCare Digital Diabetes Educator. How can I help you manage your diabetes, blood
+                    sugar, or nutrition today?
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Ask DiaCare AI..."
+                    data-i18n-placeholder="chatPlaceholder">
+                <button class="chat-send-btn" id="chat-send"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+    <script src="i18n.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+
+            const savedTheme = localStorage.getItem('diacare_theme');
+            if (savedTheme === 'dark' && themeIcon) {
+                themeIcon.className = 'fas fa-sun';
+            }
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    if (isDark) {
+                        document.documentElement.removeAttribute('data-theme');
+                        themeIcon.className = 'fas fa-moon';
+                        localStorage.setItem('diacare_theme', 'light');
+                    } else {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                        themeIcon.className = 'fas fa-sun';
+                        localStorage.setItem('diacare_theme', 'dark');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

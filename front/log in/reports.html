@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia Care - Monthly Reports</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script>
+        if (localStorage.getItem('diacare_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo" style="display: flex; align-items: center; gap: 10px;">
+                <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 15 10 L 55 10 C 100 10 100 90 55 90 L 15 90 Z" fill="white" />
+                    <path d="M 55 25 C 55 25 75 55 75 70 A 20 20 0 0 1 35 70 C 35 55 55 25 55 25 Z" fill="#ff6b6b" />
+                </svg>
+                <h2 style="font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.5px; margin: 0;">
+                    DiaCare</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item" data-i18n="dailyLogging"><i class="fas fa-book-medical"></i>
+                    Daily Logging</a>
+                <a href="nutrition.html" class="nav-item" data-i18n="nutritionLibrary"><i class="fas fa-apple-alt"></i>
+                    Nutrition Library</a>
+                <a href="reports.html" class="nav-item active" data-i18n="monthlyReports"><i
+                        class="fas fa-chart-line"></i> Monthly Reports</a>
+                <a href="settings.html" class="nav-item" data-i18n="userSettings"><i class="fas fa-cog"></i> User
+                    Settings</a>
+            </nav>
+            <a href="#" id="logout-btn" class="nav-item" style="margin-top: auto; color: var(--error);"
+                data-i18n="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="main-header">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="header-logo" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="36" height="36" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 15 10 L 55 10 C 100 10 100 90 55 90 L 15 90 Z" fill="var(--primary-color)" />
+                            <path d="M 55 25 C 55 25 75 55 75 70 A 20 20 0 0 1 35 70 C 35 55 55 25 55 25 Z"
+                                fill="#ff6b6b" />
+                        </svg>
+                        <h1
+                            style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.75rem; letter-spacing: -0.5px; color: var(--text-main);">
+                            DiaCare</h1>
+                    </div>
+                    <span style="color: var(--border); font-size: 1.5rem; margin: 0 0.5rem;">|</span>
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 500; color: var(--text-muted);"
+                        data-i18n="monthlyReports">Monthly Reports</h2>
+                </div>
+
+                <div class="header-controls" style="display: flex; align-items: center; gap: 1rem;">
+                    <button id="theme-toggle"
+                        style="background: transparent; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; padding: 0.5rem;">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                    <button id="lang-toggle"
+                        style="background: var(--surface); border: 2px solid var(--border); color: var(--text-main); font-size: 0.9rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;">
+                        عربي
+                    </button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span id="user-greeting" style="font-weight: 600; color: var(--text-main);"></span>
+                        <div class="user-profile"
+                            style="display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: var(--surface); border: 2px solid var(--border); color: var(--text-muted); border-radius: 50%; width: 45px; height: 45px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Monthly Summary Card -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+                    <h3 data-i18n="monthlyOverview"><i class="fas fa-calendar-alt"
+                            style="color: var(--primary-color);"></i> Monthly Overview</h3>
+                    <div class="meal-calculations" style="margin-top: 0;">
+                        <div class="calc-item">
+                            <span class="calc-label" data-i18n="averageGlucose">Average Glucose</span>
+                            <span id="report-avg-glucose" class="calc-value"
+                                style="font-size: 1.5rem; color: var(--primary-color);">--</span>
+                        </div>
+                        <div class="calc-item">
+                            <span class="calc-label" data-i18n="estimatedA1c">Estimated A1C</span>
+                            <span id="report-est-a1c" class="calc-value"
+                                style="font-size: 1.5rem; color: var(--success);">--%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time in Range Card -->
+                <div class="card">
+                    <h3 data-i18n="timeInRange"><i class="fas fa-bullseye" style="color: var(--secondary-color);"></i>
+                        Time in Range</h3>
+                    <div style="margin-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-muted);" data-i18n="normal">Normal
+                                (70-180)</span>
+                            <span style="font-size: 0.85rem; font-weight: 600; color: var(--success);">75%</span>
+                        </div>
+                        <div class="progress-container" style="height: 12px; margin-bottom: 1rem; background: #e2e8f0;">
+                            <div class="progress-bar" style="width: 75%; background-color: var(--success);"></div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-muted);" data-i18n="high">High
+                                (>180)</span>
+                            <span style="font-size: 0.85rem; font-weight: 600; color: var(--error);">20%</span>
+                        </div>
+                        <div class="progress-container" style="height: 12px; margin-bottom: 1rem; background: #e2e8f0;">
+                            <div class="progress-bar" style="width: 20%; background-color: var(--error);"></div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-muted);" data-i18n="low">Low (<70)<
+                                    /span>
+                                    <span style="font-size: 0.85rem; font-weight: 600; color: #f59e0b;">5%</span>
+                        </div>
+                        <div class="progress-container" style="height: 12px; background: #e2e8f0;">
+                            <div class="progress-bar" style="width: 5%; background-color: #f59e0b;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Report Card -->
+                <div class="card"
+                    style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                    <div
+                        style="width: 80px; height: 80px; background: var(--input-bg); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 1rem;">
+                        <i class="fas fa-file-pdf" style="font-size: 2.5rem; color: var(--error);"></i>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;"
+                        data-i18n="detailedReportingDesc">Generate comprehensive reports for you and your doctor.</p>
+                    <button class="btn-primary" id="btn-export-pdf"
+                        style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-download"></i> <span data-i18n="exportPDF">Export Report (PDF)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trend Chart -->
+            <div class="card chart-card" style="margin-top: 0;">
+                <h3><i class="fas fa-chart-area" style="color: var(--primary-color);"></i> 30-Day Trend</h3>
+                <div class="chart-placeholder">
+                    <canvas id="monthlyTrendChart" style="width: 100%; height: 250px;"></canvas>
+                </div>
+            </div>
+        </main>
+
+        <!-- AI Chatbot Widget -->
+        <div class="chatbot-widget" style="z-index: 9999;">
+            <button class="chatbot-btn" id="chatbot-toggle" title="Ask DiaCare AI"
+                data-i18n-title="askDiaCareAITooltip">
+                <i class="fas fa-robot"></i>
+            </button>
+            <div class="chatbot-window" id="chatbot-window">
+                <div class="chat-header">
+                    <h3 data-i18n="diaCareAI"><i class="fas fa-brain"></i> DiaCare AI</h3>
+                    <button class="close-chat" id="chatbot-close"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message msg-ai" data-i18n="aiWelcome">
+                        Hello! I am your DiaCare Digital Diabetes Educator. How can I help you manage your diabetes,
+                        blood sugar, or nutrition today?
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Ask DiaCare AI..."
+                        data-i18n-placeholder="chatPlaceholder">
+                    <button class="chat-send-btn" id="chat-send"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="reports.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>

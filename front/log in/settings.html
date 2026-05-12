@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia Care - User Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script>
+        if (localStorage.getItem('diacare_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo" style="display: flex; align-items: center; gap: 10px;">
+                <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 15 10 L 55 10 C 100 10 100 90 55 90 L 15 90 Z" fill="white" />
+                    <path d="M 55 25 C 55 25 75 55 75 70 A 20 20 0 0 1 35 70 C 35 55 55 25 55 25 Z" fill="#ff6b6b" />
+                </svg>
+                <h2 style="font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.5px; margin: 0;">
+                    DiaCare</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item" data-i18n="dailyLogging"><i class="fas fa-book-medical"></i>
+                    Daily Logging</a>
+                <a href="nutrition.html" class="nav-item" data-i18n="nutritionLibrary"><i class="fas fa-apple-alt"></i>
+                    Nutrition Library</a>
+                <a href="reports.html" class="nav-item" data-i18n="monthlyReports"><i class="fas fa-chart-line"></i>
+                    Monthly Reports</a>
+                <a href="settings.html" class="nav-item active" data-i18n="userSettings"><i class="fas fa-cog"></i> User
+                    Settings</a>
+            </nav>
+            <a href="#" id="logout-btn" class="nav-item" style="margin-top: auto; color: var(--error);"
+                data-i18n="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="main-header">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="header-logo" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="36" height="36" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 15 10 L 55 10 C 100 10 100 90 55 90 L 15 90 Z" fill="var(--primary-color)" />
+                            <path d="M 55 25 C 55 25 75 55 75 70 A 20 20 0 0 1 35 70 C 35 55 55 25 55 25 Z"
+                                fill="#ff6b6b" />
+                        </svg>
+                        <h1
+                            style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.75rem; letter-spacing: -0.5px; color: var(--text-main);">
+                            DiaCare</h1>
+                    </div>
+                    <span style="color: var(--border); font-size: 1.5rem; margin: 0 0.5rem;">|</span>
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 500; color: var(--text-muted);"
+                        data-i18n="userSettings">User Settings</h2>
+                </div>
+
+                <div class="header-controls" style="display: flex; align-items: center; gap: 1rem;">
+                    <button id="theme-toggle"
+                        style="background: transparent; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; padding: 0.5rem;">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                    <button id="lang-toggle"
+                        style="background: var(--surface); border: 2px solid var(--border); color: var(--text-main); font-size: 0.9rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;">
+                        عربي
+                    </button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span id="user-greeting" style="font-weight: 600; color: var(--text-main);"></span>
+                        <div class="user-profile"
+                            style="display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: var(--surface); border: 2px solid var(--border); color: var(--text-muted); border-radius: 50%; width: 45px; height: 45px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Account Information -->
+                <div class="card" style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 1rem;">
+                    <h3 data-i18n="accountInfoTitle" style="margin-bottom: 0.5rem;"><i class="fas fa-user-circle"
+                            style="color: var(--primary-color);"></i> Account Information</h3>
+                    <div class="row" style="gap: 1.5rem;">
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label for="settings-fname" data-i18n="firstNameLabel">First Name</label>
+                            <input type="text" id="settings-fname">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label for="settings-email" data-i18n="emailLabel">Email Address</label>
+                            <input type="email" id="settings-email" disabled
+                                style="background-color: var(--background); cursor: not-allowed; opacity: 0.7;">
+                        </div>
+                    </div>
+                    <div class="input-group" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+                        <label for="settings-diabetes-type" data-i18n="diabetesTypeLabel">Diabetes Type</label>
+                        <select id="settings-diabetes-type">
+                            <option value="type1" data-i18n-opt="type1">Type 1</option>
+                            <option value="type2" data-i18n-opt="type2">Type 2</option>
+                            <option value="gestational" data-i18n-opt="gestational">Gestational</option>
+                            <option value="pediatric" data-i18n-opt="pediatric">Pediatric</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="btn-update-profile"
+                        style="width: auto; align-self: flex-start; padding: 0.75rem 2rem; display: flex; gap: 0.5rem; align-items: center;">
+                        <i class="fas fa-save"></i> <span data-i18n="updateProfileBtn">Update Profile</span>
+                    </button>
+                </div>
+
+                <!-- Preferences -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h3 data-i18n="preferencesTitle"><i class="fas fa-sliders-h"
+                                style="color: var(--secondary-color);"></i> Preferences</h3>
+                        <div class="input-group">
+                            <label for="settings-lang" data-i18n="languageLabel">Language</label>
+                            <select id="settings-lang">
+                                <option value="en">English</option>
+                                <option value="ar">عربي</option>
+                            </select>
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label for="settings-theme" data-i18n="themeLabel">Theme</label>
+                            <select id="settings-theme">
+                                <option value="light" data-i18n-opt="lightTheme">Light</option>
+                                <option value="dark" data-i18n-opt="darkTheme">Dark</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h3 data-i18n="securityTitle"><i class="fas fa-shield-alt" style="color: var(--error);"></i>
+                            Security</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;"
+                            data-i18n="enterDetails">Enter a new password to update your account security.</p>
+                        <div class="input-group" style="margin-bottom: 1rem;">
+                            <label for="settings-password" data-i18n="newPasswordLabel">New Password</label>
+                            <input type="password" id="settings-password" placeholder="••••••••">
+                        </div>
+                    </div>
+                    <button class="btn-secondary" id="btn-change-password"
+                        style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; border-radius: 8px; border: 2px solid var(--error); background: transparent; color: var(--error); font-weight: bold;">
+                        <i class="fas fa-key"></i> <span data-i18n="changePasswordBtn">Change Password</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- AI Chatbot Widget -->
+        <div class="chatbot-widget" style="z-index: 9999;">
+            <button class="chatbot-btn" id="chatbot-toggle" title="Ask DiaCare AI"
+                data-i18n-title="askDiaCareAITooltip">
+                <i class="fas fa-robot"></i>
+            </button>
+            <div class="chatbot-window" id="chatbot-window">
+                <div class="chat-header">
+                    <h3 data-i18n="diaCareAI"><i class="fas fa-brain"></i> DiaCare AI</h3>
+                    <button class="close-chat" id="chatbot-close"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message msg-ai" data-i18n="aiWelcome">
+                        Hello! I am your DiaCare Digital Diabetes Educator. How can I help you manage your diabetes,
+                        blood sugar, or nutrition today?
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Ask DiaCare AI..."
+                        data-i18n-placeholder="chatPlaceholder">
+                    <button class="chat-send-btn" id="chat-send"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="settings.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>

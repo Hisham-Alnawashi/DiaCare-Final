@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia Care - Dashboard</title>
+    <meta name="description" content="Dia Care Dashboard: Smart daily logging, meal tracking, and insights.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script>
+        if (localStorage.getItem('diacare_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+    <style>
+        @keyframes flashRedAlert {
+            0% {
+                box-shadow: 0 0 0px rgba(239, 68, 68, 0);
+                background-color: var(--surface);
+                border-color: transparent;
+            }
+
+            50% {
+                box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+                background-color: #fee2e2;
+                border-color: #ef4444;
+                color: #b91c1c;
+            }
+
+            100% {
+                box-shadow: 0 0 0px rgba(239, 68, 68, 0);
+                background-color: var(--surface);
+                border-color: transparent;
+            }
+        }
+
+        @keyframes flashRedAlertDark {
+            0% {
+                box-shadow: 0 0 0px rgba(239, 68, 68, 0);
+                background-color: var(--surface);
+                border-color: transparent;
+            }
+
+            50% {
+                box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+                background-color: rgba(239, 68, 68, 0.2);
+                border-color: #ef4444;
+                color: #fca5a5;
+            }
+
+            100% {
+                box-shadow: 0 0 0px rgba(239, 68, 68, 0);
+                background-color: var(--surface);
+                border-color: transparent;
+            }
+        }
+
+        .flash-red-alert {
+            animation: flashRedAlert 1.2s infinite ease-in-out;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+
+        [data-theme="dark"] .flash-red-alert {
+            animation: flashRedAlertDark 1.2s infinite ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo" style="display: flex; align-items: center; gap: 10px;">
+                <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- White D for the purple sidebar background -->
+                    <path d="M 15 10 L 55 10 C 100 10 100 90 55 90 L 15 90 Z" fill="white" />
+                    <!-- Coral Blood Drop -->
+                    <path d="M 55 25 C 55 25 75 55 75 70 A 20 20 0 0 1 35 70 C 35 55 55 25 55 25 Z" fill="#ff6b6b" />
+                </svg>
+                <h2 style="font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.5px; margin: 0;">
+                    DiaCare</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item active" data-i18n="dailyLogging"><i
+                        class="fas fa-book-medical"></i> Daily Logging</a>
+                <a href="nutrition.html" class="nav-item" data-i18n="nutritionLibrary"><i class="fas fa-apple-alt"></i>
+                    Nutrition Library</a>
+                <a href="reports.html" class="nav-item" data-i18n="monthlyReports"><i class="fas fa-chart-line"></i>
+                    Monthly
+                    Reports</a>
+                <a href="settings.html" class="nav-item" data-i18n="userSettings"><i class="fas fa-cog"></i> User
+                    Settings</a>
+            </nav>
+
+            <!-- Profile Setup / Diabetes Type Selector -->
+            <div class="user-type-selector">
+                <label for="user-diabetes-type" data-i18n="myTypeOfDiabetes">My type of diabetes :</label>
+                <select id="user-diabetes-type" style="margin-bottom: 1rem;">
+                    <option value="type1" data-i18n-opt="optType1">Type 1 Diabetes</option>
+                    <option value="type2" data-i18n-opt="optType2">Type 2 Diabetes</option>
+                    <option value="gestational" data-i18n-opt="optGestational">Gestational</option>
+                    <option value="pediatric" data-i18n-opt="optPediatric">Pediatric</option>
+                </select>
+
+            </div>
+
+            <a href="#" id="logout-btn" class="nav-item" style="margin-top: auto; color: var(--error);"
+                data-i18n="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="main-header">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <!-- New Modern DiaCare Logo (Header Top-Left) -->
+                    <div class="header-logo" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="36" height="36" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Minimalist D in Vibrant Purple -->
+                            <path d="M 15 10 L 55 10 C 100 10 100 90 55 90 L 15 90 Z" fill="var(--primary-color)" />
+                            <!-- Subtly integrated Blood Drop acting as the 'D' counter -->
+                            <path d="M 55 25 C 55 25 75 55 75 70 A 20 20 0 0 1 35 70 C 35 55 55 25 55 25 Z"
+                                fill="#ff6b6b" />
+                        </svg>
+                        <h1
+                            style="margin: 0; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.75rem; letter-spacing: -0.5px; color: var(--text-main);">
+                            DiaCare</h1>
+                    </div>
+
+                    <span style="color: var(--border); font-size: 1.5rem; margin: 0 0.5rem;">|</span>
+
+                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 500; color: var(--text-muted);"
+                        data-i18n="dailyLogging">Daily Logging</h2>
+                </div>
+
+                <div class="header-controls" style="display: flex; align-items: center; gap: 1rem;">
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle"
+                        style="background: transparent; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; padding: 0.5rem;">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                    <!-- Language Toggle -->
+                    <button id="lang-toggle"
+                        style="background: var(--surface); border: 2px solid var(--border); color: var(--text-main); font-size: 0.9rem; font-weight: bold; cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;">
+                        عربي
+                    </button>
+                    <!-- User Profile Icon (Replaced temporary text avatar) -->
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span id="user-greeting" style="font-weight: 600; color: var(--text-main);"></span>
+                        <div class="user-profile"
+                            style="display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: var(--surface); border: 2px solid var(--border); color: var(--text-muted); border-radius: 50%; width: 45px; height: 45px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Smart Health Alert Banner -->
+            <div id="smart-health-banner" class="health-banner hidden">
+                <div class="banner-content">
+                    <i id="banner-icon" class="fas fa-info-circle"></i>
+                    <span id="banner-message"></span>
+                </div>
+                <button id="banner-ai-btn" class="btn-explain-ai">
+                    <i class="fas fa-brain"></i> <span data-i18n="explainWithAI">Explain with AI</span>
+                </button>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Blood Sugar Card -->
+                <div class="card blood-sugar-card">
+                    <h3 data-i18n="bloodSugarLog"><i class="fas fa-tint" style="color: #ef4444;"></i> Blood Sugar Log
+                    </h3>
+
+                    <div class="input-group" style="margin-bottom: 1rem;">
+                        <label for="measurement-context" data-i18n="measurementContext">Measurement Context</label>
+                        <select id="measurement-context">
+                            <option value="fasting" data-i18n-opt="fasting">Fasting</option>
+                            <option value="post-meal" data-i18n-opt="postMeal">Post-meal</option>
+                            <option value="random" data-i18n-opt="random">Random</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="gestational-time-group" style="display: none; margin-bottom: 1rem;">
+                        <label for="gestational-time" data-i18n="postMealTime">Post-meal Time</label>
+                        <select id="gestational-time">
+                            <option value="1h" data-i18n-opt="opt1h">1 Hour</option>
+                            <option value="2h" data-i18n-opt="opt2h">2 Hours</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="glucose-input" data-i18n="glucoseLabel">Current Glucose (mg/dL)</label>
+                        <div class="glucose-input-wrapper">
+                            <input type="number" id="glucose-input" placeholder="e.g., 120"
+                                data-i18n-placeholder="glucosePlaceholder" min="0">
+                            <button id="log-glucose-btn" class="btn-secondary">Log</button>
+                        </div>
+                    </div>
+                    <div class="status-badge-container">
+                        <span data-i18n="statusLabel">Status: </span>
+                        <span id="glucose-badge" class="badge badge-default" data-i18n="enterReading">Enter
+                            reading</span>
+                    </div>
+                </div>
+
+                <!-- Weight & BMI Tracker Card -->
+                <div class="card weight-card">
+                    <h3 data-i18n="weightBmiTitle"><i class="fas fa-weight" style="color: var(--secondary-color);"></i>
+                        Weight & BMI</h3>
+                    <div class="row" style="gap: 1rem; margin-bottom: 1rem;">
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label for="height-input" data-i18n="heightCm">Height (cm)</label>
+                            <input type="number" id="height-input" placeholder="170" value="170"
+                                data-i18n-placeholder="heightPlaceholder">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label for="target-weight-input" data-i18n="targetKg">Target (kg)</label>
+                            <input type="number" id="target-weight-input" placeholder="70" value="70"
+                                data-i18n-placeholder="targetWeightPlaceholder">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="weight-input" data-i18n="currentWeightKg">Current Weight (kg)</label>
+                        <div class="glucose-input-wrapper">
+                            <input type="number" id="weight-input" placeholder="e.g., 75"
+                                data-i18n-placeholder="weightPlaceholder">
+                            <button id="log-weight-btn" class="btn-secondary" data-i18n="logBtn">Log</button>
+                        </div>
+                    </div>
+                    <div class="meal-calculations" style="margin-top: 1rem;">
+                        <div class="calc-item">
+                            <span class="calc-label" data-i18n="calculatedBmi">Calculated BMI</span>
+                            <span class="calc-value" id="calc-bmi">--</span>
+                        </div>
+                        <div class="calc-item"
+                            style="flex-direction: column; align-items: flex-start; margin-top: 0.5rem; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; width: 100%;">
+                                <span class="calc-label" data-i18n="progressToTarget">Progress to Target</span>
+                                <span class="calc-value" id="weight-diff">-- kg</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="weight-progress"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meal Tracker Card -->
+                <div class="card meal-tracker-card">
+                    <h3 data-i18n="mealTracker"><i class="fas fa-utensils" style="color: var(--primary-color);"></i>
+                        Meal Tracker</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;"
+                        data-i18n="mealTrackerDesc">Track your meals and see their estimated impact.</p>
+
+                    <div class="input-group">
+                        <label for="meal-input" data-i18n="foodItem">Food Item</label>
+                        <div class="glucose-input-wrapper">
+                            <input type="text" id="meal-input" list="meal-datalist"
+                                placeholder="Select or search a meal..." style="flex: 1;"
+                                data-i18n-placeholder="selectFood" autocomplete="off">
+                            <datalist id="meal-datalist">
+                                <!-- الأطباق الرئيسية -->
+                                <option value="المنسف (100 جم) / Mansaf (~38g)" data-carbs="38"></option>
+                                <option value="المقلوبة (100 جم) / Maqluba (~30g)" data-carbs="30"></option>
+                                <option value="الكبسة (100 جم) / Kabsa (~33g)" data-carbs="33"></option>
+                                <option value="المحاشي (100 جم) / Mahashi (~16g)" data-carbs="16"></option>
+                                <option value="ورق عنب (100 جم) / Waraq Enab (~22g)" data-carbs="22"></option>
+                                <option value="الكبة (100 جم) / Kibbeh (~28g)" data-carbs="28"></option>
+                                <option value="المجدرة (100 جم) / Mujadara (~24g)" data-carbs="24"></option>
+                                <option value="الملوخية بدون أرز (100 جم) / Molokhia (~4g)" data-carbs="4"></option>
+                                <option value="المسخن (100 جم) / Musakhan (~40g)" data-carbs="40"></option>
+                                <option value="الكشري (100 جم) / Koshari (~45g)" data-carbs="45"></option>
+                                <option value="الفريكة بالدجاج (100 جم) / Freekeh (~24g)" data-carbs="24"></option>
+                                <!-- الحلويات -->
+                                <option value="الكنافة (100 جم) / Kunafa (~50g)" data-carbs="50"></option>
+                                <option value="البقلاوة (قطعة) / Baklava (~18g)" data-carbs="18"></option>
+                                <option value="القطايف (حبة) / Qatayef (~28g)" data-carbs="28"></option>
+                                <option value="المعمول (حبة) / Maamoul (~22g)" data-carbs="22"></option>
+                                <option value="حلاوة الجبن (قطعة) / Halawet El Jibn (~22g)" data-carbs="22"></option>
+                                <option value="أرز بحليب (كوب) / Rice Pudding (~32g)" data-carbs="32"></option>
+                                <option value="كيك الشوكولاتة (100 جم) / Chocolate Cake (~48g)" data-carbs="48">
+                                </option>
+                                <option value="الدونات (حبة) / Donut (~28g)" data-carbs="28"></option>
+                                <!-- المخبوزات والمعجنات -->
+                                <option value="خبز عربي (رغيف) / Arabic Bread (~50g)" data-carbs="50"></option>
+                                <option value="خبز شراك (100 جم) / Shrak Bread (~45g)" data-carbs="45"></option>
+                                <option value="توست أبيض (شريحة) / White Toast (~15g)" data-carbs="15"></option>
+                                <option value="توست أسمر (شريحة) / Brown Toast (~12g)" data-carbs="12"></option>
+                                <option value="كعك بسمسم (حبة) / Sesame Ka'ak (~55g)" data-carbs="55"></option>
+                                <option value="مناقيش زعتر (حبة) / Za'atar Manakish (~45g)" data-carbs="45"></option>
+                                <option value="فطيرة جبنة (حبة) / Cheese Pastry (~35g)" data-carbs="35"></option>
+                                <option value="فطيرة سبانخ (حبة) / Spinach Pastry (~30g)" data-carbs="30"></option>
+                                <option value="بيتزا (شريحة) / Pizza Slice (~30g)" data-carbs="30"></option>
+                                <option value="خبز فرنسي (100 جم) / Baguette (~50g)" data-carbs="50"></option>
+                                <!-- الفطور الشامي والسندويشات -->
+                                <option value="ساندويتش فلافل / Falafel Sandwich (~45g)" data-carbs="45"></option>
+                                <option value="فلافل (4 حبات) / Falafel (~20g)" data-carbs="20"></option>
+                                <option value="حمص (صحن بدون خبز) / Hummus (~15g)" data-carbs="15"></option>
+                                <option value="فول مدمس (صحن بدون خبز) / Foul Medames (~20g)" data-carbs="20"></option>
+                                <option value="فتة حمص / Fatteh (~40g)" data-carbs="40"></option>
+                                <option value="ساندويتش لبنة أو حلوم / Labneh/Halloumi Sandwich (~35g)" data-carbs="35">
+                                </option>
+                                <option value="ساندويتش مقالي (زهرة وبطاطا) / Fried Veggies Sandwich (~55g)"
+                                    data-carbs="55"></option>
+                                <option value="ساندويتش زيت وزعتر / Za'atar & Oil Sandwich (~40g)" data-carbs="40">
+                                </option>
+                                <option value="ساندويتش جبنة / Cheese Sandwich (~35g)" data-carbs="35"></option>
+                                <option value="ساندويتش مرتديلا / Mortadella Sandwich (~35g)" data-carbs="35">
+                                </option>
+                                <option value="ساندويتش بيض مسلوق / Egg Sandwich (~35g)" data-carbs="35"></option>
+                                <option value="ساندويتش بطاطا مقلية / Fries Sandwich (~60g)" data-carbs="60"></option>
+                                <option value="عرائس باللحم (رغيف) / Arayes (~40g)" data-carbs="40"></option>
+                                <!-- الوجبات السريعة وسندويشات الغداء -->
+                                <option value="برجر (حجم وسط) / Burger (~40g)" data-carbs="40"></option>
+                                <option value="بطاطا مقلية (وسط) / French Fries (~45g)" data-carbs="45"></option>
+                                <option value="ساندويش شاورما دجاج / Chicken Shawarma (~45g)" data-carbs="45"></option>
+                                <option value="ساندويش شاورما لحم / Meat Shawarma (~40g)" data-carbs="40"></option>
+                                <option value="دجاج مقلي (قطعتين) / Fried Chicken (~20g)" data-carbs="20"></option>
+                                <option value="ساندويتش زنجر أو كريسبي / Zinger Sandwich (~55g)" data-carbs="55">
+                                </option>
+                                <option value="ساندويتش فاهيتا أو فرانسيسكو / Fajita Sandwich (~45g)" data-carbs="45">
+                                </option>
+                                <option value="ساندويتش شيش طاووق / Shish Tawook (~40g)" data-carbs="40"></option>
+                                <option value="ساندويتش كباب أو كفتة / Kabab Sandwich (~40g)" data-carbs="40"></option>
+                                <option value="ساندويتش تونة / Tuna Sandwich (~35g)" data-carbs="35"></option>
+                                <option value="ساندويتش كبدة / Liver Sandwich (~40g)" data-carbs="40"></option>
+                                <option value="ساندويش هوت دوج / Hot Dog (~35g)" data-carbs="35"></option>
+                                <!-- العصائر والمشروبات -->
+                                <option value="عصير برتقال طبيعي (كوب) / Orange Juice (~26g)" data-carbs="26"></option>
+                                <option value="عصير تفاح طبيعي (كوب) / Apple Juice (~29g)" data-carbs="29"></option>
+                                <option value="عصير رمان (كوب) / Pomegranate Juice (~32g)" data-carbs="32"></option>
+                                <option value="تمرهندي محلى (كوب) / Tamarind (~40g)" data-carbs="40"></option>
+                                <option value="فيمتو (كوب) / Vimto (~35g)" data-carbs="35"></option>
+                                <!-- العناصر الصحية والدهون -->
+                                <option value="عدس مطبوخ (نصف كوب) / Lentils (~19g)" data-carbs="19"></option>
+                                <option value="حمص مسلوق (نصف كوب) / Chickpeas (~16g)" data-carbs="16"></option>
+                                <option value="بطاطا مسلوقة (حبة) / Boiled Potato (~18g)" data-carbs="18"></option>
+                                <option value="تفاح (حبة) / Apple (~18g)" data-carbs="18"></option>
+                                <option value="موز (حبة) / Banana (~28g)" data-carbs="28"></option>
+                                <!-- الخضراوات -->
+                                <option value="خيار (حبة) / Cucumber (~4g)" data-carbs="4"></option>
+                                <option value="طماطم (حبة) / Tomato (~5g)" data-carbs="5"></option>
+                                <option value="جزر (حبة) / Carrot (~6g)" data-carbs="6"></option>
+                                <option value="بصل (حبة) / Onion (~9g)" data-carbs="9"></option>
+                                <option value="بروكلي (كوب) / Broccoli (~6g)" data-carbs="6"></option>
+                                <option value="قرنبيط (كوب) / Cauliflower (~5g)" data-carbs="5"></option>
+                                <option value="باذنجان (كوب) / Eggplant (~6g)" data-carbs="6"></option>
+                                <option value="فلفل حلو (حبة) / Bell Pepper (~6g)" data-carbs="6"></option>
+                                <option value="سبانخ (كوب) / Spinach (~1g)" data-carbs="1"></option>
+                                <option value="خس (كوب) / Lettuce (~1g)" data-carbs="1"></option>
+                                <option value="ملفوف (كوب) / Cabbage (~5g)" data-carbs="5"></option>
+                                <!-- الفواكه الطازجة -->
+                                <option value="برتقال (حبة) / Orange (~15g)" data-carbs="15"></option>
+                                <option value="عنب (15 حبة) / Grapes (~15g)" data-carbs="15"></option>
+                                <option value="بطيخ (كوب) / Watermelon (~11g)" data-carbs="11"></option>
+                                <option value="مانجو (نصف كوب) / Mango (~15g)" data-carbs="15"></option>
+                                <option value="خوخ (حبة) / Peach (~14g)" data-carbs="14"></option>
+                                <option value="كمثرى (حبة) / Pear (~20g)" data-carbs="20"></option>
+                                <option value="برقوق (حبة) / Plum (~8g)" data-carbs="8"></option>
+                                <option value="كيوي (حبة) / Kiwi (~10g)" data-carbs="10"></option>
+                                <option value="أناناس (كوب) / Pineapple (~22g)" data-carbs="22"></option>
+                                <option value="تمر (3 حبات) / Dates (~18g)" data-carbs="18"></option>
+                                <option value="تين (حبتين) / Figs (~20g)" data-carbs="20"></option>
+                                <option value="كرز (كوب) / Cherries (~19g)" data-carbs="19"></option>
+                                <option value="توت أزرق (كوب) / Blueberries (~21g)" data-carbs="21"></option>
+                                <option value="شمام (كوب) / Cantaloupe (~12g)" data-carbs="12"></option>
+                                <option value="مشمش (3 حبات) / Apricot (~12g)" data-carbs="12"></option>
+                                <option value="ليمون (حبة) / Lemon (~5g)" data-carbs="5"></option>
+                                <option value="جريب فروت (نصف حبة) / Grapefruit (~13g)" data-carbs="13"></option>
+                                <option value="يوسفي / مندلينا (حبة) / Mandarin (~12g)" data-carbs="12"></option>
+                                <option value="بوملي (كوب) / Pomelo (~18g)" data-carbs="18"></option>
+                                <option value="بابايا (كوب) / Papaya (~16g)" data-carbs="16"></option>
+                                <option value="جوافة (حبة) / Guava (~12g)" data-carbs="12"></option>
+                                <option value="رمان (نصف حبة) / Pomegranate (~16g)" data-carbs="16"></option>
+                                <option value="توت أسود (كوب) / Blackberries (~14g)" data-carbs="14"></option>
+                                <option value="توت أحمر (كوب) / Raspberries (~15g)" data-carbs="15"></option>
+                                <!-- مشتقات الألبان -->
+                                <option value="حليب كامل الدسم (كوب) / Whole Milk (~12g)" data-carbs="12"></option>
+                                <option value="حليب خالي الدسم (كوب) / Skim Milk (~12g)" data-carbs="12"></option>
+                                <option value="زبادي سادة (كوب) / Plain Yogurt (~11g)" data-carbs="11"></option>
+                                <option value="زبادي يوناني سادة (كوب) / Greek Yogurt (~7g)" data-carbs="7"></option>
+                                <option value="لبنة (ملعقة كبيرة) / Labneh (~2g)" data-carbs="2"></option>
+                                <option value="جبنة فيتا (30 جم) / Feta Cheese (~1g)" data-carbs="1"></option>
+                                <option value="جبنة شيدر أو قشقوان (شريحة) / Cheddar (~1g)" data-carbs="1"></option>
+                                <option value="جبنة حلوم أو نابلسية (شريحة) / Halloumi (~1g)" data-carbs="1"></option>
+                                <option value="قشطة أو قيمر (ملعقة) / Cream (~1g)" data-carbs="1"></option>
+                                <option value="لحوم ودجاج وأسماك وبيض / Meats & Eggs (0g)" data-carbs="0"></option>
+                                <option value="زيت زيتون ومكسرات / Olive Oil & Nuts (~4g)" data-carbs="4"></option>
+                            </datalist>
+                            <button id="log-meal-btn" class="btn-secondary" data-i18n="logBtn">Log</button>
+                        </div>
+                    </div>
+                    <div class="meal-calculations">
+                        <div class="calc-item">
+                            <span class="calc-label" data-i18n="calcCarbs">Calculated Carbohydrates</span>
+                            <span class="calc-value" id="calc-carbs">-- g</span>
+                        </div>
+                        <div class="calc-item">
+                            <span class="calc-label" data-i18n="estImpact">Estimated Blood Sugar Impact</span>
+                            <span class="calc-value" id="calc-impact">-- mg/dL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Insulin Bolus Calculator -->
+                <div class="card bolus-calculator-card">
+                    <h3 data-i18n="bolusTitle"><i class="fas fa-syringe" style="color: var(--primary-color);"></i> Smart
+                        Insulin Bolus Calculator</h3>
+                    <div class="input-group">
+                        <label for="bolusCarbsInput" data-i18n="carbIntake">Carbohydrate Intake (g)</label>
+                        <input type="number" id="bolusCarbsInput" placeholder="Enter Carbs (g)"
+                            data-i18n-placeholder="enterCarbsPlaceholder" min="0">
+                    </div>
+
+                    <div class="meal-calculations" style="margin-bottom: 1rem;">
+                        <div class="calc-item"
+                            style="background: var(--surface); border: 1px solid var(--border); padding: 1rem; width: 100%;">
+                            <span class="calc-label" data-i18n="suggestedDose">Suggested Insulin Dose</span>
+                            <span class="calc-value" id="calc-bolus-dose"
+                                style="color: var(--primary-color); font-size: 1.5rem; font-weight: bold;">-- <span
+                                    data-i18n="units">Units</span></span>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--error); margin-bottom: 1rem; text-align: center;">
+                        <i class="fas fa-exclamation-triangle"></i> <span data-i18n="bolusWarning">This is an estimated
+                            calculation. Always follow your doctor’s specific ratios.</span>
+                    </div>
+                    <button class="btn-secondary" id="btn-analyze-ai"
+                        style="width: 100%; background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); padding: 0.75rem; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 600; transition: background 0.3s;">
+                        <i class="fas fa-magic"></i> <span data-i18n="calculateDose">Calculate Dose</span>
+                        <i class="fas fa-magic"></i> <span data-i18n="analyzeAI">Dose Advice</span>
+                    </button>
+                </div>
+
+                <!-- Dynamic Suggestion Box -->
+                <div class="card suggestion-card">
+                    <h3 data-i18n="smartSuggestionTitle"><i class="fas fa-lightbulb" style="color: #f59e0b;"></i> Smart
+                        Suggestion</h3>
+                    <div id="suggestion-content" class="suggestion-content" data-i18n="awaitingData">
+                        Awaiting data to provide personalized suggestions.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blood Glucose Fluctuations Chart Placeholder -->
+            <div class="card chart-card">
+                <h3 data-i18n="bgFluctuationsTitle"><i class="fas fa-chart-area"
+                        style="color: var(--primary-color);"></i> Blood Glucose Fluctuations</h3>
+                <div class="chart-placeholder">
+                    <canvas id="dailyBgChart" style="width: 100%; height: 250px;"></canvas>
+                </div>
+            </div>
+        </main>
+
+        <!-- AI Chatbot Widget -->
+        <div class="chatbot-widget" style="z-index: 9999;">
+            <button class="chatbot-btn" id="chatbot-toggle" title="Ask DiaCare AI"
+                data-i18n-title="askDiaCareAITooltip">
+                <i class="fas fa-robot"></i>
+            </button>
+            <div class="chatbot-window" id="chatbot-window">
+                <div class="chat-header">
+                    <h3 data-i18n="diaCareAI"><i class="fas fa-brain"></i> DiaCare AI</h3>
+                    <button class="close-chat" id="chatbot-close"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message msg-ai" data-i18n="aiWelcome">
+                        Hello! I am your DiaCare Digital Diabetes Educator. How can I help you manage your diabetes,
+                        blood sugar, or nutrition today?
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Ask DiaCare AI..."
+                        data-i18n-placeholder="chatPlaceholder">
+                    <button class="chat-send-btn" id="chat-send"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const glucoseInput = document.getElementById('glucose-input');
+            const logGlucoseBtn = document.getElementById('log-glucose-btn');
+            const glucoseBadge = document.getElementById('glucose-badge');
+            const diabetesTypeSelect = document.getElementById('user-diabetes-type');
+            const physioContextSelect = document.getElementById('user-physio-context');
+            const suggestionContent = document.getElementById('suggestion-content');
+
+            const measurementContextSelect = document.getElementById('measurement-context');
+            const gestationalTimeGroup = document.getElementById('gestational-time-group');
+            const gestationalTimeSelect = document.getElementById('gestational-time');
+
+            const mealInput = document.getElementById('meal-input');
+            const mealSearchInput = document.getElementById('meal-search-input');
+            const logMealBtn = document.getElementById('log-meal-btn');
+            const calcCarbs = document.getElementById('calc-carbs');
+            const calcImpact = document.getElementById('calc-impact');
+            const bolusCarbsInput = document.getElementById('bolusCarbsInput');
+
+            // --- Load Stored Diabetes Type from Login ---
+            const storedType = localStorage.getItem('diacare_diabetes_type');
+            if (storedType && diabetesTypeSelect) {
+                diabetesTypeSelect.value = storedType;
+            }
+
+            // --- Check for pending meal from Nutrition Library ---
+            const pendingMeal = localStorage.getItem('pending_meal');
+            const pendingCarbs = localStorage.getItem('pending_carbs');
+            if (pendingMeal) {
+                const cVal = parseFloat(pendingCarbs) || 0;
+                const isAr = document.documentElement.getAttribute('lang') === 'ar';
+
+                if (mealInput) mealInput.value = pendingMeal;
+                calcCarbs.textContent = cVal + (isAr ? " جم (لهذه الوجبة)" : " g (This Meal)");
+                calcImpact.textContent = "+" + (cVal * 3) + (isAr ? " ملغ/ديسيلتر" : " mg/dL");
+                if (bolusCarbsInput) bolusCarbsInput.value = cVal;
+
+                localStorage.removeItem('pending_meal');
+                localStorage.removeItem('pending_carbs');
+
+                // Highlight the meal tracker card to show it was added
+                const mealCard = document.querySelector('.meal-tracker-card');
+                if (mealCard) {
+                    mealCard.style.boxShadow = '0 0 15px var(--primary-color)';
+                    setTimeout(() => {
+                        mealCard.style.boxShadow = '';
+                    }, 2000);
+                }
+            }
+
+            const heightInput = document.getElementById('height-input');
+            const weightInput = document.getElementById('weight-input');
+            const targetWeightInput = document.getElementById('target-weight-input');
+            const logWeightBtn = document.getElementById('log-weight-btn');
+            const calcBmi = document.getElementById('calc-bmi');
+            const weightDiff = document.getElementById('weight-diff');
+            const weightProgress = document.getElementById('weight-progress');
+
+            function updateDashboard() {
+                const curLang = document.documentElement.getAttribute('lang') || 'en';
+                const isArabic = curLang === 'ar';
+                const unitKg = isArabic ? 'كجم' : 'kg';
+
+                const glucoseVal = parseFloat(glucoseInput.value);
+                const type = diabetesTypeSelect.value;
+                const context = physioContextSelect ? physioContextSelect.value : 'none';
+                const measurementContext = measurementContextSelect.value;
+                const gestationalTime = gestationalTimeSelect.value;
+
+                // Show/hide gestational time select
+                if (type === 'gestational' && measurementContext === 'post-meal') {
+                    gestationalTimeGroup.style.display = 'block';
+                } else {
+                    gestationalTimeGroup.style.display = 'none';
+                }
+
+                const weight = parseFloat(weightInput.value);
+                const heightCm = parseFloat(heightInput.value);
+                const targetWeight = parseFloat(targetWeightInput.value);
+
+                // Reset suggestion styling
+                suggestionContent.className = 'suggestion-content';
+                let defaultSuggestion = dictionary && dictionary['awaitingData'] ? dictionary['awaitingData'][curLang] : 'Awaiting data to provide personalized suggestions.';
+                let suggestionHtml = '';
+
+                // BMI Calculation
+                let bmi = null;
+                if (!isNaN(weight) && !isNaN(heightCm) && heightCm > 0) {
+                    const heightM = heightCm / 100;
+                    bmi = weight / (heightM * heightM);
+                    calcBmi.textContent = bmi.toFixed(1);
+
+                    if (!isNaN(targetWeight)) {
+                        const diff = weight - targetWeight;
+                        if (diff > 0) {
+                            weightDiff.textContent = `+${diff.toFixed(1)} ${unitKg}`;
+                            // Arbitrary progress calc for demo: assumes start was +10kg
+                            const progress = Math.max(0, 100 - (diff / 10) * 100);
+                            weightProgress.style.width = `${Math.min(100, progress)}%`;
+                        } else if (diff < 0) {
+                            weightDiff.textContent = `${diff.toFixed(1)} ${unitKg}`;
+                            weightProgress.style.width = '100%';
+                        } else {
+                            weightDiff.textContent = dictionary && dictionary['goalReached'] ? dictionary['goalReached'][curLang] : 'Goal reached!';
+                            weightProgress.style.width = '100%';
+                        }
+                    }
+                } else {
+                    calcBmi.textContent = '--';
+                    weightDiff.textContent = `-- ${unitKg}`;
+                    weightProgress.style.width = '0%';
+                }
+
+                if (isNaN(glucoseVal)) {
+                    glucoseBadge.textContent = dictionary && dictionary['enterReading'] ? dictionary['enterReading'][curLang] : 'Enter reading';
+                    glucoseBadge.setAttribute('data-i18n', 'enterReading');
+                    glucoseBadge.className = 'badge badge-default';
+                    suggestionHtml = defaultSuggestion;
+                } else {
+                    // حفظ القراءة محلياً بشكل فوري ليتمكن المساعد الذكي من قراءتها وتحليلها
+                    localStorage.setItem('diacare_last_glucose', glucoseVal);
+
+                    // Determine glucose status
+                    let status = 'Normal';
+                    let lowerBound = 70;
+                    let upperBound = 180;
+
+                    if (type === 'type1' || type === 'type2') {
+                        if (measurementContext === 'fasting') {
+                            lowerBound = 80;
+                            upperBound = 130;
+                        } else {
+                            lowerBound = 70;
+                            upperBound = 180;
+                        }
+                    } else if (type === 'pediatric') {
+                        if (measurementContext === 'fasting') {
+                            lowerBound = 90;
+                            upperBound = 130;
+                        } else {
+                            lowerBound = 110;
+                            upperBound = 180;
+                        }
+                    } else if (type === 'gestational') {
+                        lowerBound = 70;
+                        if (measurementContext === 'fasting') {
+                            upperBound = 95;
+                        } else {
+                            if (gestationalTime === '1hr') {
+                                upperBound = 140;
+                            } else {
+                                upperBound = 120;
+                            }
+                        }
+                    }
+
+                    if (glucoseVal < 70 || glucoseVal < lowerBound) {
+                        status = 'Low';
+                        glucoseBadge.setAttribute('data-i18n', 'low');
+                        const curLang = document.documentElement.getAttribute('lang') || 'en';
+                        glucoseBadge.textContent = dictionary && dictionary['low'] ? dictionary['low'][curLang] : 'Low';
+                        glucoseBadge.style.backgroundColor = '#fee2e2'; // Red
+                        glucoseBadge.style.color = '#ef4444';
+                        glucoseBadge.style.border = 'none';
+                    } else if (glucoseVal > upperBound) {
+                        status = 'High';
+                        glucoseBadge.setAttribute('data-i18n', 'high');
+                        const curLang = document.documentElement.getAttribute('lang') || 'en';
+                        glucoseBadge.textContent = dictionary && dictionary['high'] ? dictionary['high'][curLang] : 'High';
+                        glucoseBadge.style.backgroundColor = '#fee2e2'; // Red
+                        glucoseBadge.style.color = '#ef4444';
+                        glucoseBadge.style.border = 'none';
+                    } else {
+                        status = 'Normal';
+                        glucoseBadge.setAttribute('data-i18n', 'normal');
+                        const curLang = document.documentElement.getAttribute('lang') || 'en';
+                        glucoseBadge.textContent = dictionary && dictionary['normal'] ? dictionary['normal'][curLang] : 'Normal';
+                        glucoseBadge.style.backgroundColor = '#d1fae5'; // Green
+                        glucoseBadge.style.color = '#10b981';
+                        glucoseBadge.style.border = 'none';
+                    }
+
+                    // Simplified suggestions based on the strictly requested 3 states
+                    if (status === 'Low') {
+                        const title = dictionary && dictionary['suggLowTitle'] ? dictionary['suggLowTitle'][curLang] : '🚨 Low Blood Sugar:';
+                        const desc = dictionary && dictionary['suggLowDesc'] ? dictionary['suggLowDesc'][curLang] : 'Risk of shaking/dizziness. Take fast-acting sugar immediately.';
+                        suggestionHtml = `<strong>${title}</strong><br>${desc}`;
+                        suggestionContent.className = 'suggestion-content suggestion-type2 flash-red-alert';
+                    } else if (status === 'High') {
+                        const title = dictionary && dictionary['suggHighTitle'] ? dictionary['suggHighTitle'][curLang] : 'Attention (High):';
+                        const desc = dictionary && dictionary['suggHighDesc'] ? dictionary['suggHighDesc'][curLang] : 'Your reading exceeds the target limits. Please review your meal plan or consult your doctor.';
+                        suggestionHtml = `<strong>${title}</strong><br>${desc}`;
+                        suggestionContent.className = 'suggestion-content suggestion-type2';
+                    } else {
+                        const title = dictionary && dictionary['suggNormalTitle'] ? dictionary['suggNormalTitle'][curLang] : 'Great Job!';
+                        const desc = dictionary && dictionary['suggNormalDesc'] ? dictionary['suggNormalDesc'][curLang] : 'Your blood sugar is Normal and within the target range.';
+                        suggestionHtml = `<strong>${title}</strong><br>${desc}`;
+                        suggestionContent.className = 'suggestion-content';
+                    }
+
+                    if (typeof updateHealthBanner === 'function') {
+                        lastGlucoseValue = glucoseVal;
+                        lastGlucoseStatus = status;
+                        updateHealthBanner(glucoseVal, status);
+                    }
+                }
+
+                // Add weight-based suggestion if applicable
+                if (bmi !== null && !isNaN(targetWeight) && weight > targetWeight) {
+                    const wTitle = dictionary && dictionary['suggWeightTitle'] ? dictionary['suggWeightTitle'][curLang] : 'Nutritional Awareness:';
+                    const wDesc = dictionary && dictionary['suggWeightDesc'] ? dictionary['suggWeightDesc'][curLang] : 'Your weight is above target. Focus on calorie and carbohydrate tracking to support your goals.';
+                    let weightSuggestion = `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1);">
+                        <strong>${wTitle}</strong><br>${wDesc}
+                    </div>`;
+
+                    if (context === 'pregnancy' || type === 'gestational') {
+                        const pTitle = dictionary && dictionary['suggPregTitle'] ? dictionary['suggPregTitle'][curLang] : 'Pregnancy Note:';
+                        const pDesc = dictionary && dictionary['suggPregDesc'] ? dictionary['suggPregDesc'][curLang] : 'Gradual weight gain is expected. Consult your doctor to ensure your target aligns with gestational guidelines.';
+                        weightSuggestion = `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1);">
+                            <strong>${pTitle}</strong><br>${pDesc}
+                        </div>`;
+                    }
+
+                    if (!suggestionHtml || suggestionHtml === defaultSuggestion) {
+                        suggestionHtml = weightSuggestion;
+                    } else {
+                        suggestionHtml += weightSuggestion;
+                    }
+                }
+
+                suggestionContent.innerHTML = suggestionHtml || defaultSuggestion;
+            }
+
+            function simulateMealTracking() {
+                const curLang = document.documentElement.getAttribute('lang') || 'en';
+                const isArabic = curLang === 'ar';
+                const unitG = isArabic ? 'جم' : 'g';
+                const unitMg = isArabic ? 'ملغ/ديسيلتر' : 'mg/dL';
+
+                let dailyCarbs = parseFloat(localStorage.getItem('diacare_daily_carbs')) || 0;
+                const todayStr = new Date().toDateString();
+                if (localStorage.getItem('diacare_daily_date') !== todayStr) {
+                    dailyCarbs = 0;
+                }
+
+                let selectedCarbs = 0;
+                if (mealInput && mealInput.value.trim().length > 0) {
+                    const datalist = document.getElementById('meal-datalist');
+                    if (datalist) {
+                        const options = Array.from(datalist.options);
+                        const selectedOption = options.find(opt => opt.value === mealInput.value);
+                        if (selectedOption) {
+                            selectedCarbs = parseFloat(selectedOption.getAttribute('data-carbs')) || 0;
+                        }
+                    }
+                }
+
+                if (selectedCarbs > 0) {
+                    calcCarbs.textContent = `${selectedCarbs} ${unitG} ${isArabic ? '(لهذه الوجبة)' : '(This Meal)'}`;
+                    calcImpact.textContent = `+${selectedCarbs * 3} ${unitMg}`;
+                    if (bolusCarbsInput) bolusCarbsInput.value = selectedCarbs;
+                } else if (mealInput && mealInput.value.trim().length > 0 && !localStorage.getItem('pending_meal')) {
+                    calcCarbs.textContent = `~30 ${unitG} ${isArabic ? '(تقديري)' : '(Est.)'}`;
+                    calcImpact.textContent = `+45 ${unitMg}`;
+                } else {
+                    calcCarbs.textContent = dailyCarbs > 0 ? `${dailyCarbs} ${unitG} ${isArabic ? '(إجمالي اليوم)' : '(Daily Total)'}` : `-- ${unitG}`;
+                    calcImpact.textContent = `-- ${unitMg}`;
+                }
+            }
+            simulateMealTracking(); // Initialize on load
+
+            if (logMealBtn) {
+                logMealBtn.addEventListener('click', () => {
+                    if (mealInput && mealInput.value.trim().length > 0) {
+                        let cVal = 30; // default estimated
+                        const datalist = document.getElementById('meal-datalist');
+                        if (datalist) {
+                            const options = Array.from(datalist.options);
+                            const selectedOption = options.find(opt => opt.value === mealInput.value);
+                            if (selectedOption) {
+                                cVal = parseFloat(selectedOption.getAttribute('data-carbs')) || 0;
+                            }
+                        }
+                        let dailyCarbs = parseFloat(localStorage.getItem('diacare_daily_carbs')) || 0;
+                        dailyCarbs += cVal;
+                        localStorage.setItem('diacare_daily_carbs', dailyCarbs);
+
+                        // حفظ الوجبة وتفاصيلها في قاعدة البيانات المحلية للتقارير
+                        if (window.DiaCareDB) {
+                            window.DiaCareDB.addLog('db_meals', {
+                                mealName: mealInput.value,
+                                carbs: cVal
+                            });
+                        }
+
+                        mealInput.value = '';
+                        simulateMealTracking();
+                        const isAr = document.documentElement.getAttribute('lang') === 'ar';
+                        alert(isAr ? 'تم تسجيل الوجبة بنجاح وحفظها في السجل التاريخي!' : 'Meal logged successfully and added to history!');
+                    }
+                });
+            }
+
+            logGlucoseBtn.addEventListener('click', () => {
+                const val = parseFloat(glucoseInput.value);
+                if (!isNaN(val)) {
+                    // حفظ قراءة السكر مع سياق القياس في قاعدة البيانات للتقارير
+                    if (window.DiaCareDB) {
+                        window.DiaCareDB.addLog('db_glucose', {
+                            value: val,
+                            context: measurementContextSelect.value,
+                            type: diabetesTypeSelect.value
+                        });
+                    }
+                    const isAr = document.documentElement.getAttribute('lang') === 'ar';
+                    alert(isAr ? 'تم حفظ قراءة السكر بنجاح في السجل التاريخي للتقارير!' : 'Glucose reading saved to history log for reports!');
+                    if (typeof renderDailyChart === 'function') renderDailyChart();
+                }
+                updateDashboard();
+            });
+
+            glucoseInput.addEventListener('input', updateDashboard);
+            diabetesTypeSelect.addEventListener('change', updateDashboard);
+            if (physioContextSelect) physioContextSelect.addEventListener('change', updateDashboard);
+            measurementContextSelect.addEventListener('change', updateDashboard);
+            gestationalTimeSelect.addEventListener('change', updateDashboard);
+            mealInput.addEventListener('input', simulateMealTracking);
+            weightInput.addEventListener('input', updateDashboard);
+            heightInput.addEventListener('input', updateDashboard);
+            targetWeightInput.addEventListener('input', updateDashboard);
+            logWeightBtn.addEventListener('click', () => {
+                const w = parseFloat(weightInput.value);
+                const h = parseFloat(heightInput.value);
+                if (!isNaN(w) && !isNaN(h) && h > 0) {
+                    // حفظ الوزن ومؤشر كتلة الجسم للتقارير
+                    if (window.DiaCareDB) {
+                        window.DiaCareDB.addLog('db_weight', {
+                            weight: w,
+                            height: h,
+                            bmi: (w / Math.pow(h / 100, 2)).toFixed(1)
+                        });
+                    }
+                    const isAr = document.documentElement.getAttribute('lang') === 'ar';
+                    alert(isAr ? 'تم حفظ الوزن بنجاح في السجل التاريخي!' : 'Weight saved to history log!');
+                }
+                updateDashboard();
+            });
+
+            // Theme Toggle Logic
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+
+            // Load saved theme
+            const savedTheme = localStorage.getItem('diacare_theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if (themeIcon) themeIcon.className = 'fas fa-sun';
+            }
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    if (isDark) {
+                        document.documentElement.removeAttribute('data-theme');
+                        themeIcon.className = 'fas fa-moon';
+                        localStorage.setItem('diacare_theme', 'light');
+                    } else {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                        themeIcon.className = 'fas fa-sun';
+                        localStorage.setItem('diacare_theme', 'dark');
+                    }
+                });
+            }
+
+            // Load user profile from login
+            const userName = localStorage.getItem('diacare_user_fname');
+            const userType = localStorage.getItem('diacare_diabetes_type');
+
+            if (userName) {
+                const greetingEl = document.getElementById('user-greeting');
+                if (greetingEl) {
+                    const updateGreeting = () => {
+                        const curLang = document.documentElement.getAttribute('lang') || 'en';
+                        const welcomeStr = dictionary && dictionary['welcome'] ? dictionary['welcome'][curLang] : 'Welcome,';
+                        greetingEl.textContent = `${welcomeStr} ${userName}!`;
+                    };
+                    updateGreeting();
+
+                    document.addEventListener('languageChanged', updateGreeting);
+                }
+            }
+
+            if (userType) {
+                const typeSelect = document.getElementById('user-diabetes-type');
+                if (typeSelect) {
+                    typeSelect.value = userType;
+                    updateDashboard();
+                }
+            }
+
+            // --- Smart Health Alert Logic ---
+            const healthBanner = document.getElementById('smart-health-banner');
+            const bannerIcon = document.getElementById('banner-icon');
+            const bannerMessage = document.getElementById('banner-message');
+            const bannerAiBtn = document.getElementById('banner-ai-btn');
+
+            let lastGlucoseValue = null;
+            let lastGlucoseStatus = null;
+
+            const updateHealthBanner = (val, status) => {
+                if (!healthBanner) return;
+                healthBanner.classList.remove('hidden', 'status-normal', 'status-alert');
+
+                const isArabic = document.documentElement.getAttribute('lang') === 'ar';
+
+                if (status.toLowerCase() === 'normal') {
+                    healthBanner.classList.add('status-normal');
+                    bannerIcon.className = 'fas fa-check-circle';
+                    bannerIcon.style.color = 'var(--success)';
+                    const msg = dictionary && dictionary['alertNormal'] ? dictionary['alertNormal'][isArabic ? 'ar' : 'en'] : "Great job! Your sugar is within target.";
+                    bannerMessage.textContent = msg;
+                } else if (status.toLowerCase() === 'high') {
+                    healthBanner.classList.add('status-alert');
+                    bannerIcon.className = 'fas fa-exclamation-circle';
+                    bannerIcon.style.color = 'var(--error)';
+                    const msg = dictionary && dictionary['alertHigh'] ? dictionary['alertHigh'][isArabic ? 'ar' : 'en'] : "Your sugar is high. Stay hydrated and check for symptoms.";
+                    bannerMessage.textContent = msg;
+                } else if (status.toLowerCase() === 'low') {
+                    healthBanner.classList.add('status-alert');
+                    bannerIcon.className = 'fas fa-exclamation-triangle';
+                    bannerIcon.style.color = 'var(--error)';
+                    const msg = dictionary && dictionary['alertLow'] ? dictionary['alertLow'][isArabic ? 'ar' : 'en'] : "Your sugar is low. Consider consuming fast-acting carbs.";
+                    bannerMessage.textContent = msg;
+                }
+            };
+
+            document.addEventListener('languageChanged', () => {
+                if (lastGlucoseValue !== null && lastGlucoseStatus !== null) {
+                    updateHealthBanner(lastGlucoseValue, lastGlucoseStatus);
+                }
+            });
+
+            if (bannerAiBtn) {
+                bannerAiBtn.addEventListener('click', () => {
+                    const chatbotWindow = document.getElementById('chatbot-window');
+                    const chatInput = document.getElementById('chat-input');
+                    const chatSendBtn = document.getElementById('chat-send');
+
+                    if (chatbotWindow && chatInput && chatSendBtn && lastGlucoseValue) {
+                        chatbotWindow.classList.add('active');
+                        const isArabic = document.documentElement.getAttribute('lang') === 'ar';
+                        chatInput.value = isArabic
+                            ? `قراءتي الأخيرة للسكر كانت ${lastGlucoseValue}. هل يمكنك شرح ما يعنيه ذلك وماذا يجب أن أفعل؟`
+                            : `My last blood sugar reading was ${lastGlucoseValue}. Can you explain what this means and what I should do?`;
+                        chatSendBtn.click();
+                    }
+                });
+            }
+
+            // AI Chatbot Logic
+            window.chatBotAttached = true;
+            const chatbotToggle = document.getElementById('chatbot-toggle');
+            const chatbotWindow = document.getElementById('chatbot-window');
+            const chatbotClose = document.getElementById('chatbot-close');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const chatSendBtn = document.getElementById('chat-send');
+
+            chatbotToggle.addEventListener('click', () => {
+                chatbotWindow.classList.toggle('active');
+                if (chatbotWindow.classList.contains('active')) {
+                    chatInput.focus();
+                }
+            });
+
+            chatbotClose.addEventListener('click', () => {
+                chatbotWindow.classList.remove('active');
+            });
+
+            const appendMessage = (text, sender, saveToHistory = true) => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message msg-${sender}`;
+                msgDiv.textContent = text;
+                chatMessages.appendChild(msgDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                if (saveToHistory) {
+                    let history = JSON.parse(sessionStorage.getItem('diacare_chat_history') || '[]');
+                    history.push({ text, sender });
+                    sessionStorage.setItem('diacare_chat_history', JSON.stringify(history));
+                }
+            };
+
+            const loadChatHistory = () => {
+                let history = JSON.parse(sessionStorage.getItem('diacare_chat_history') || '[]');
+                if (history.length > 0) {
+                    chatMessages.innerHTML = ''; // clear default welcome
+                    history.forEach(msg => {
+                        appendMessage(msg.text, msg.sender, false);
+                    });
+                }
+            };
+            loadChatHistory();
+
+            const showTypingIndicator = () => {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.id = 'typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                `;
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            };
+
+            const hideTypingIndicator = () => {
+                const typingDiv = document.getElementById('typing-indicator');
+                if (typingDiv) {
+                    typingDiv.remove();
+                }
+            };
+
+            const handleChatSubmit = () => {
+                const userText = chatInput.value.trim();
+                if (!userText) return;
+
+                // Append user message
+                appendMessage(userText, 'user');
+                chatInput.value = '';
+
+                // Show typing indicator
+                showTypingIndicator();
+
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const isArabic = document.documentElement.getAttribute('lang') === 'ar';
+                    const type = localStorage.getItem('diacare_diabetes_type') || 'type1';
+                    const lastGlucose = parseFloat(localStorage.getItem('diacare_last_glucose'));
+                    let response = "";
+
+                    if (userText.toLowerCase().includes('رياض') || userText.toLowerCase().includes('sport') || userText.toLowerCase().includes('exercise')) {
+                        response = isArabic ?
+                            "الرياضة ممتازة لخفض السكر! يُنصح بـ 150 دقيقة من التمارين الهوائية أسبوعياً (مثل المشي السريع). تأكد من فحص السكر قبل الرياضة؛ إذا كان أقل من 100، تناول وجبة خفيفة. وإذا كان فوق 250، احذر من التمارين الشاقة." :
+                            "Exercise is great for lowering blood sugar! 150 mins/week of aerobic activity is recommended. Check sugar before: if <100, eat a snack. If >250, avoid strenuous exercise.";
+                    } else if (userText.toLowerCase().includes('أكل') || userText.toLowerCase().includes('طعام') || userText.toLowerCase().includes('eat') || userText.toLowerCase().includes('food') || userText.toLowerCase().includes('diet') || userText.toLowerCase().includes('كربوهيدرات')) {
+                        response = isArabic ?
+                            "ينصح بالتركيز على الخضروات غير النشوية، والبروتينات الخالية من الدهون، والكربوهيدرات المعقدة (مثل الشوفان والخبز الأسمر). تجنب السكريات البسيطة والمشروبات المحلاة." :
+                            "Focus on non-starchy vegetables, lean proteins, and complex carbs (like oats and whole wheat bread). Avoid simple sugars and sweetened drinks.";
+                    } else if (userText.toLowerCase().includes('بيتزا') || userText.toLowerCase().includes('برجر') || userText.toLowerCase().includes('سريع') || userText.toLowerCase().includes('pizza') || userText.toLowerCase().includes('burger')) {
+                        response = isArabic ?
+                            "🍕 الوجبات السريعة والبيتزا تحتوي على نسبة عالية من الكربوهيدرات والدهون معاً. الدهون تبطئ هضم الكربوهيدرات، مما يسبب ما يُعرف بـ (تأثير البيتزا)، وهو ارتفاع متأخر في السكر (بعد 3-4 ساعات). يُنصح بمراقبة سكرك لفترة أطول بعد هذه الوجبة." :
+                            "🍕 Fast food and pizza are high in carbs and fats. Fats delay carb digestion, causing the 'Pizza Effect' - a delayed sugar spike (3-4 hours later). Monitor your sugar for a longer period after this meal.";
+                    } else if (!isNaN(lastGlucose) && (userText.includes(lastGlucose.toString()) || userText.includes('قراءت') || userText.includes('reading') || userText.includes('سكر') || userText.includes('جرعة'))) {
+                        if (lastGlucose < 70) {
+                            response = isArabic ?
+                                `قراءتك الحالية (${lastGlucose}) منخفضة جداً (نقص سكر الدم) 🚨\n\n📌 **الإجراء الطبي (حسب جمعية السكري الأمريكية ADA):**\n١. **تطبيق قاعدة 15:** تناول 15 جرام من الكربوهيدرات السريعة فوراً (مثل: نصف كوب عصير، ملعقة عسل، أو 3 أقراص جلوكوز).\n٢. انتظر 15 دقيقة ثم افحص السكر مرة أخرى.\n٣. إذا كان لا يزال أقل من 70، كرر الخطوة الأولى.\n٤. إذا ارتفع فوق 70، تناول وجبة خفيفة تحتوي على بروتين (مثل نصف ساندويتش) لمنع هبوطه مجدداً.` :
+                                `Your reading (${lastGlucose}) is very low (Hypoglycemia) 🚨\n\n📌 **Medical Action (ADA Guidelines):**\n1. **Rule of 15:** Eat 15g of fast-acting carbs immediately (e.g., 1/2 cup juice, 1 tbsp honey).\n2. Wait 15 mins and check again.\n3. If still < 70, repeat step 1.\n4. Once > 70, eat a small snack with protein (e.g., half sandwich) to stabilize it.`;
+                        } else if (lastGlucose > 180) {
+                            if (type === 'type1') {
+                                response = isArabic ?
+                                    `قراءتك الحالية (${lastGlucose}) مرتفعة ⚠️\n\n📌 **الإجراء الطبي:**\n١. اشرب كوبين من الماء للمساعدة في التخلص من السكر الزائد عبر البول.\n٢. خذ جرعة تصحيحية من الإنسولين السريع حسب توجيهات طبيبك.\n٣. **تحذير:** إذا كان السكر فوق 250، افحص الكيتونات وتجنب الرياضة الشاقة تماماً.\n٤. أعد الفحص بعد ساعتين.` :
+                                    `Your reading (${lastGlucose}) is high ⚠️\n\n📌 **Medical Action:**\n1. Drink plenty of water to help flush excess sugar via urine.\n2. Take a rapid insulin correction dose as directed by your doctor.\n3. **Warning:** If > 250, check for ketones and avoid strenuous exercise.\n4. Recheck in 2 hours.`;
+                            } else if (type === 'type2') {
+                                response = isArabic ?
+                                    `قراءتك الحالية (${lastGlucose}) مرتفعة ⚠️\n\n📌 **الإجراء الطبي:**\n١. تأكد من أخذ أدويتك الموصوفة (مثل حبة المنظم 700مغ) في وقتها.\n٢. اشرب الماء بكثرة للترطيب.\n٣. قم بنشاط بدني خفيف (مثل المشي لـ 15-20 دقيقة) لأن ذلك يساعد العضلات على حرق السكر الزائد.\n٤. تجنب الكربوهيدرات البسيطة في وجبتك القادمة.` :
+                                    `Your reading (${lastGlucose}) is high ⚠️\n\n📌 **Medical Action:**\n1. Ensure you took your prescribed meds (e.g., Metformin 700mg) on time.\n2. Drink plenty of water.\n3. Do light exercise (like a 15-20 min walk) to help muscles use excess sugar.\n4. Avoid simple carbs in your next meal.`;
+                            } else if (type === 'gestational') {
+                                response = isArabic ?
+                                    `قراءتك الحالية (${lastGlucose}) أعلى من النطاق الآمن للحمل ⚠️\n\n📌 **الإجراء الطبي:**\n١. اشربي الماء والتزمي حرفياً بالحمية الغذائية المحددة لكِ.\n٢. المشي الخفيف لـ 15 دقيقة بعد الوجبات يساعد جداً في خفض السكر.\n٣. تواصلي مع طبيبك لمراجعة الخطة العلاجية (الإنسولين هو الخيار الآمن إذا استمر الارتفاع).` :
+                                    `Your reading (${lastGlucose}) is above the safe pregnancy target ⚠️\n\n📌 **Medical Action:**\n1. Drink water and strictly follow your gestational diet plan.\n2. A 15-min light walk after meals significantly lowers sugar.\n3. Consult your doctor to review your treatment (Insulin is the safe option if it remains high).`;
+                            } else {
+                                response = isArabic ?
+                                    `قراءة طفلك (${lastGlucose}) مرتفعة ⚠️\n\n📌 **الإجراء الطبي:**\n١. شجعه على شرب الماء لترطيب جسمه.\n٢. احسب جرعة تصحيحية بحذر حسب توجيهات طبيب الأطفال.\n٣. راقب السكر مرة أخرى بعد الجرعة وتجنب إعطاءه سكريات إضافية.` :
+                                    `Your child's reading (${lastGlucose}) is high ⚠️\n\n📌 **Medical Action:**\n1. Encourage them to drink plenty of water.\n2. Calculate a careful correction dose per pediatrician's guidance.\n3. Recheck sugar later and avoid extra sweets.`;
+                            }
+                        } else {
+                            response = isArabic ?
+                                `قراءتك الحالية (${lastGlucose}) ممتازة وضمن النطاق الطبيعي الموصى به! 🎉\n\n📌 **نصيحة طبية:**\nأنت تقوم بعمل رائع. استمر في الحفاظ على هذا التوازن من خلال الالتزام بخطتك الغذائية والعلاجية، وممارسة نشاط بدني يومي.` :
+                                `Your current reading (${lastGlucose}) is excellent and in range! 🎉\n\n📌 **Medical Advice:**\nYou are doing a great job. Keep this balance by sticking to your meal and treatment plan, and getting daily physical activity.`;
+                        }
+                    } else {
+                        response = isArabic ?
+                            "مرحباً بك! أنا مرشدك الصحي المحلي المعتمد على مراجع طبية موثوقة (مثل جمعية السكري الأمريكية ADA). يمكنك سؤالي عن الرياضة، الطعام، أو الضغط على (نصائح الجرعة) ليتم تحليل قراءتك وتقديم الإرشادات." :
+                            "Welcome! I am your local Health Guide based on reliable guidelines (like ADA). Ask me about exercise, food, or click (Dose Advice) to get your reading analyzed.";
+                    }
+
+                    appendMessage(response + (isArabic ? "\n\n(ملاحظة: هذه إرشادات مرجعية، يرجى دائماً مراجعة طبيبك المعالج)." : "\n\n(Note: These are reference guidelines, always consult your treating doctor)."), 'ai');
+                }, 600);
+            };
+
+            chatSendBtn.addEventListener('click', handleChatSubmit);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleChatSubmit();
+            });
+
+            // Smart Insulin Bolus Logic
+            const bolusCarbsInputDOM = document.getElementById('bolusCarbsInput');
+            const calcBolusDose = document.getElementById('calc-bolus-dose');
+            const btnAnalyzeAi = document.getElementById('btn-analyze-ai');
+
+            document.addEventListener('languageChanged', () => {
+                updateDashboard();
+            });
+
+            if (btnAnalyzeAi) {
+                btnAnalyzeAi.addEventListener('click', () => {
+                    const sugarVal = parseFloat(glucoseInput.value);
+                    const rawCarbs = bolusCarbsInputDOM ? bolusCarbsInputDOM.value : 0;
+                    const carbsVal = rawCarbs === '' ? 0 : parseFloat(rawCarbs) || 0;
+                    const type = diabetesTypeSelect.value;
+                    const isArabic = document.documentElement.getAttribute('lang') === 'ar';
+
+                    if (isNaN(sugarVal)) {
+                        alert(isArabic ? "يرجى إدخال نسبة السكر الحالية في قسم السجل أولاً." : "Please enter your current blood sugar in the log section first.");
+                        return;
+                    }
+
+                    // عرض تأثير التحميل لتنبيه المستخدم
+                    const originalBtnHtml = btnAnalyzeAi.innerHTML;
+                    btnAnalyzeAi.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${isArabic ? 'جاري الحساب...' : 'Calculating...'}`;
+                    btnAnalyzeAi.disabled = true;
+
+                    setTimeout(() => {
+                        let doseMsg = "";
+                        let target = 100;
+                        let isf = 50;  // Insulin Sensitivity Factor (كم يخفض الإنسولين السكر)
+                        let icr = 10;  // Insulin-to-Carb Ratio (كم يغطي الإنسولين من الكربوهيدرات)
+                        let prefix = "";
+
+                        // جلب حالة القياس لتحديد النطاق بدقة كما في الشارة
+                        const measurementContext = measurementContextSelect ? measurementContextSelect.value : 'random';
+                        const gestationalTime = gestationalTimeSelect ? gestationalTimeSelect.value : '1h';
+                        let lowerBound = 70;
+                        let upperBound = 180;
+
+                        if (type === 'type1' || type === 'type2') {
+                            if (measurementContext === 'fasting') {
+                                lowerBound = 80;
+                                upperBound = 130;
+                            } else {
+                                lowerBound = 70;
+                                upperBound = 180;
+                            }
+                        } else if (type === 'pediatric') {
+                            if (measurementContext === 'fasting') {
+                                lowerBound = 90;
+                                upperBound = 130;
+                            } else {
+                                lowerBound = 110;
+                                upperBound = 180;
+                            }
+                        } else if (type === 'gestational') {
+                            lowerBound = 70;
+                            if (measurementContext === 'fasting') {
+                                upperBound = 95;
+                            } else {
+                                upperBound = (gestationalTime === '1h' || gestationalTime === '1hr') ? 140 : 120;
+                            }
+                        }
+
+                        // المعايير الطبية التقريبية لحساب جرعة الإنسولين السريع بناءً على النوع
+                        if (type === 'type1') {
+                            // النوع الأول للبالغين
+                            target = 100;
+                            isf = 50;
+                            icr = 10;
+                        } else if (type === 'pediatric') {
+                            // الأطفال (حساسية أعلى للإنسولين)
+                            target = 120;
+                            isf = 100;
+                            icr = 15;
+                        } else if (type === 'gestational') {
+                            // سكري الحمل (أهداف صارمة وحساسية متغيرة)
+                            target = 95;
+                            isf = 50;
+                            icr = 12;
+                            prefix = isArabic ? "(استشيري الطبيب) " : "(Consult doctor) ";
+                        }
+
+                        // التعامل مع هبوط السكر
+                        if (sugarVal < 70 || sugarVal < lowerBound) {
+                            doseMsg = isArabic ? "سكر منخفض! عالج الهبوط أولاً ولا تأخذ إنسولين" : "Low sugar! Treat first, no insulin.";
+                            calcBolusDose.innerHTML = `<span style="color:var(--error); font-size:1.2rem; font-weight:bold;">${doseMsg}</span>`;
+                        } else if (type === 'type2') {
+                            // النوع الثاني: غالباً يعتمدون على الأقراص (مثل المنظم) بجرعات ثابتة (لا تتغير كالإنسولين)
+                            if (sugarVal <= upperBound) {
+                                if (carbsVal > 0) {
+                                    doseMsg = isArabic ? "سكرك طبيعي، التزم بدوائك المعتاد (حبوب المنظم)" : "Normal, stick to your prescribed oral meds.";
+                                } else {
+                                    doseMsg = isArabic ? "قراءة طبيعية وممتازة، لا إجراء إضافي مطلوب" : "Excellent normal reading, no action needed.";
+                                }
+                                calcBolusDose.innerHTML = `<span style="color:var(--primary-color); font-size:1.1rem; font-weight:bold; display:block; line-height:1.4;">${doseMsg}</span>`;
+                            } else {
+                                doseMsg = isArabic ? "السكر مرتفع! تأكد من أخذ دوائك أو استشر طبيبك" : "High! Take your oral meds or consult a doctor.";
+
+                                // نعرض خيار الإنسولين في حال كان مريض نوع ثاني ويستخدم الإنسولين فعلاً
+                                let cDose = (sugarVal - upperBound) / 40;
+                                let mDose = carbsVal / 10;
+                                let tDose = Math.round((cDose + mDose) * 2) / 2;
+                                if (tDose > 0) {
+                                    doseMsg += `<br><span style="font-size:0.9rem; color:var(--text-muted);">(${isArabic ? 'أو' : 'Or'} ${tDose} ${isArabic ? 'وحدات إنسولين إن كان موصوفاً لك' : 'units insulin if prescribed'})</span>`;
+                                }
+                                calcBolusDose.innerHTML = `<span style="color:var(--error); font-size:1.1rem; font-weight:bold; display:block; line-height:1.4;">${doseMsg}</span>`;
+                            }
+                        } else {
+                            let correctionDose = (sugarVal - target) / isf;
+                            const mealDose = carbsVal / icr;
+                            let totalDose = correctionDose + mealDose;
+                            if (totalDose < 0) totalDose = 0;
+                            // تقريب الجرعة لأقرب نصف وحدة
+                            totalDose = Math.round(totalDose * 2) / 2;
+                            doseMsg = prefix + totalDose + " " + (isArabic ? 'وحدات' : 'Units');
+                            calcBolusDose.innerHTML = `<span style="color:var(--primary-color); font-size:1.5rem; font-weight:bold;">${doseMsg}</span>`;
+                        }
+
+                        btnAnalyzeAi.innerHTML = originalBtnHtml;
+                        btnAnalyzeAi.disabled = false;
+                    }, 600);
+                });
+            }
+
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    if (window.DiaCareDB && window.DiaCareDB.logout) {
+                        await window.DiaCareDB.logout();
+                    }
+                    localStorage.removeItem('diacare_user_fname');
+                    localStorage.removeItem('diacare_diabetes_type');
+                    localStorage.removeItem('diacare_chat_history');
+                    window.location.href = 'index.html';
+                });
+            }
+
+            // تحديث الواجهة عند جلب البيانات من Firebase
+            document.addEventListener('userDataLoaded', () => {
+                const storedType = localStorage.getItem('diacare_diabetes_type');
+                if (storedType && diabetesTypeSelect) {
+                    diabetesTypeSelect.value = storedType;
+                    updateDashboard();
+                }
+                if (typeof renderDailyChart === 'function') renderDailyChart();
+            });
+
+            document.addEventListener('logsSynced', () => {
+                if (typeof renderDailyChart === 'function') renderDailyChart();
+            });
+        });
+
+        // --- Render Dynamic Chart ---
+        let dailyChartInstance = null;
+        function renderDailyChart() {
+            const ctx = document.getElementById('dailyBgChart');
+            if (!ctx) return;
+
+            const glucoseLogs = JSON.parse(localStorage.getItem('db_glucose') || '[]');
+            glucoseLogs.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+
+            const recentLogs = glucoseLogs.slice(-15); // آخر 15 قراءة
+            const isAr = document.documentElement.getAttribute('lang') === 'ar';
+
+            const labels = recentLogs.map((log, i) => {
+                if (log.timestamp) {
+                    const d = new Date(log.timestamp);
+                    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+                return `#${i + 1}`;
+            });
+
+            const dataPoints = recentLogs.map(log => log.value);
+            // الألوان تتغير للأحمر إذا كان السكر خارج النطاق الطبيعي
+            const pointColors = dataPoints.map(val => (val < 70 || val > 180) ? '#ef4444' : '#6a3ec4');
+
+            if (dailyChartInstance) {
+                dailyChartInstance.data.labels = labels;
+                dailyChartInstance.data.datasets[0].data = dataPoints;
+                dailyChartInstance.data.datasets[0].pointBackgroundColor = pointColors;
+                dailyChartInstance.data.datasets[0].label = isAr ? 'السكر (mg/dL)' : 'Glucose (mg/dL)';
+                dailyChartInstance.update();
+            } else {
+                dailyChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: isAr ? 'السكر (mg/dL)' : 'Glucose (mg/dL)',
+                            data: dataPoints,
+                            borderColor: '#6a3ec4',
+                            backgroundColor: 'rgba(106, 62, 196, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: pointColors,
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { y: { suggestedMin: 50, suggestedMax: 250 } },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
+        renderDailyChart();
+        document.addEventListener('languageChanged', renderDailyChart);
+    </script>
+    <script src="i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
