@@ -149,6 +149,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // }
     */
 
+    // --- Dev hint: 127.0.0.1 is not auto-authorized by Firebase Auth, but localhost is. ---
+    // Warns once at load to prevent the most common `auth/unauthorized-domain` cause.
+    (function warnOnNonLocalhostHost() {
+        try {
+            const host = window.location.hostname;
+            if (host === '127.0.0.1' || /^\d+\.\d+\.\d+\.\d+$/.test(host)) {
+                const port = window.location.port;
+                const localhostUrl = 'http://localhost' + (port ? ':' + port : '');
+                console.warn(
+                    '[DiaCare] Current origin is ' + window.location.origin + '. ' +
+                    'Firebase Auth rejects raw IP hosts by default. ' +
+                    'Open the page via ' + localhostUrl + ' instead, ' +
+                    'or add "' + host + '" to Firebase Console → Authentication → Settings → Authorized domains. ' +
+                    'See Skills.md §13.7.'
+                );
+            }
+        } catch (_) { /* non-fatal */ }
+    })();
+
     // ==========================================
     // Auth-page helpers (UI feedback, validation)
     // ==========================================
@@ -162,19 +181,28 @@ document.addEventListener('DOMContentLoaded', () => {
         'auth/too-many-requests':      { en: 'Too many attempts. Please wait a few minutes.', ar: 'محاولات كثيرة. الرجاء الانتظار بضع دقائق.' },
         'auth/network-request-failed': { en: 'Network error. Check your connection.', ar: 'خطأ في الشبكة. تحقق من اتصالك.' },
         'auth/popup-closed-by-user':   { en: 'Google sign-in was cancelled.', ar: 'تم إلغاء تسجيل الدخول عبر Google.' },
-        'auth/operation-not-allowed':  { en: 'Google sign-in is not enabled. Please contact support.', ar: 'تسجيل الدخول عبر Google غير مفعّل. الرجاء التواصل مع الدعم.' }
+        'auth/popup-blocked':          { en: 'Google sign-in popup was blocked by your browser. Allow popups for this site, or try again from a different browser.', ar: 'تم حظر نافذة تسجيل الدخول من Google بواسطة المتصفح. اسمح بالنوافذ المنبثقة لهذا الموقع، أو جرّب متصفحاً آخر.' },
+        'auth/operation-not-allowed':  { en: 'Google sign-in is not enabled. Please contact support.', ar: 'تسجيل الدخول عبر Google غير مفعّل. الرجاء التواصل مع الدعم.' },
+        'auth/unauthorized-domain':    { en: 'This app is not authorized to sign in from this domain ({origin}). Add "{origin}" under Firebase Console → Authentication → Settings → Authorized domains, then retry. See Skills.md §13.7.', ar: 'هذا التطبيق غير مخوّل بتسجيل الدخول من هذا النطاق ({origin}). أضِف "{origin}" من Firebase Console → Authentication → Settings → Authorized domains، ثم أعِد المحاولة. راجع Skills.md §13.7.' }
     };
     const FALLBACK_ERROR = { en: 'An unexpected error occurred.', ar: 'حدث خطأ غير متوقع.' };
 
     function getLang() {
         return document.documentElement.getAttribute('lang') === 'ar' ? 'ar' : 'en';
     }
-    function tr(messageOrKey) {
+    function tr(messageOrKey, context) {
         // Accepts either a plain string or a key from ERROR_MAP
         const lang = getLang();
-        if (ERROR_MAP[messageOrKey]) return ERROR_MAP[messageOrKey][lang];
-        if (messageOrKey) return messageOrKey;
-        return FALLBACK_ERROR[lang];
+        let msg;
+        if (ERROR_MAP[messageOrKey]) msg = ERROR_MAP[messageOrKey][lang];
+        else if (messageOrKey) msg = messageOrKey;
+        else msg = FALLBACK_ERROR[lang];
+        if (context && typeof msg === 'string') {
+            Object.keys(context).forEach((k) => {
+                msg = msg.replace(new RegExp('\\{' + k + '\\}', 'g'), context[k]);
+            });
+        }
+        return msg;
     }
     function isValidEmail(s) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s || '');
@@ -185,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!banner) return;
         banner.hidden = false;
         const textEl = banner.querySelector('.error-text');
-        if (textEl) textEl.textContent = tr(code);
+        if (textEl) textEl.textContent = tr(code, { origin: window.location.origin });
         banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
         formEl.classList.remove('shake');
         // Force reflow to restart the animation
@@ -574,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (result?.user) await finishGoogleSignIn(result.user);
             }
         } catch (err) {
-            console.error('Google sign-in error:', err);
+            console.error('Google sign-in error:', err, '| origin =', window.location.origin);
             showFormError(loginFormEl, err.code || 'auth/popup-closed-by-user');
             setButtonLoading(googleBtn, false);
         }

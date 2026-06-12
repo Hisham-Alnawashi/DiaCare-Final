@@ -181,7 +181,7 @@ There is **no `src/`, no `dist/`, no `assets/`, no `tests/`** folder. Everything
   - Average glucose
   - **Estimated A1C** = `((avg + 46.7) / 28.7).toFixed(1)` (DCCT/ADAG approximation)
   - Time-in-range percentages (`<70`, `70–180`, `>180`)
-  - 30 most recent readings → Chart.js line chart with red point markers for out-of-range
+  - Groups readings by calendar date, averages multiple readings per day → Chart.js line chart with one averaged point per day (last 30 days), red markers for out-of-range, tooltip shows `Avg: X mg/dL (from N readings)` in EN/AR
 - PDF export via `html2pdf()` — clones `.main-content`, removes header/controls/export card, converts chart canvas to data-URL image, generates A4 PDF named `DiaCare_Report_YYYY-MM-DD.pdf`.
 - Listens to `languageChanged`, `logsSynced`, `userDataLoaded` to re-render.
 
@@ -699,6 +699,43 @@ Glucose, weight, and meal logs are mirrored to `localStorage` in plaintext. On a
 ### 13.6 Password Storage
 `script.js:234` explicitly notes: "Passwords are not stored locally for security". Verified — no password is written to LocalStorage or sessionStorage. Good.
 
+### 13.7 Firebase Auth — Authorized Domains (`auth/unauthorized-domain`)
+
+**Symptom:** User clicks "Continue with Google" (or any Firebase Auth provider). The popup either fails to open or returns:
+`FirebaseError: Firebase: Error (auth/unauthorized-domain)`.
+
+**Root cause:** Firebase rejects any sign-in attempt whose `window.location.origin` is not in the project's **Authentication → Settings → Authorized domains** allowlist. The check happens server-side before Google is ever contacted. Popups and redirect flows are both affected. The current page origin is logged by `script.js` on every Google sign-in attempt (`Google sign-in error: ... | origin = ...`).
+
+**Project:** `dia-care-86f57` (see `script.js:8`). Default allowlist typically contains only `localhost` and the project's `firebaseapp.com` / `web.app` hosts.
+
+**Fix (one-time per host):**
+1. Open https://console.firebase.google.com/ → project **`dia-care-86f57`**.
+2. **Build → Authentication → Settings → Authorized domains** → **Add domain**.
+3. Enter the host **only** (no scheme, no path, no port). Common entries for this project:
+   - `localhost` — usually present by default. Confirm.
+   - `127.0.0.1` — add if anyone develops against the raw IP.
+   - LAN IP of the dev machine (e.g., `192.168.1.42`) — for phone testing.
+   - The eventual production domain (e.g., `diacare.example.com`).
+4. Save. Propagation is ~1 minute; no client redeploy required.
+
+**Common gotchas:**
+- The auth-domain itself (`dia-care-86f57.firebaseapp.com`, `script.js:7`) is **not** the user's app host. Adding it does **not** authorize `localhost`.
+- The Live Server dev origin is `http://localhost:5501` (AGENTS.md §4). Port is normally irrelevant to the allowlist — Firebase matches the host.
+- Some browsers resolve `http://localhost` and `http://127.0.0.1` to different origins. If the team standardizes on `localhost`, do not add `127.0.0.1` unless needed.
+- Tunneled preview URLs (`*.ngrok.io`, `*.trycloudflare.com`, Vercel/Netlify previews) change per session and must be added each time, or — for production previews — use a stable host.
+- `auth/operation-not-allowed` (also handled in `ERROR_MAP`) is a **different** error: the Google provider is disabled under Sign-in method. Fix path is the same console, different section.
+
+**Code references:**
+- Error message: `script.js` → `ERROR_MAP['auth/unauthorized-domain']` and `ERROR_MAP['auth/popup-blocked']` (added 2026-06-06).
+- Origin in error UI: `tr(code, { origin: window.location.origin })` in `showFormError()`.
+- Origin in console: catch block in the Google button handler.
+- Dev IP warning: IIFE `warnOnNonLocalhostHost()` at top of `DOMContentLoaded` handler.
+
+**Pre-launch checklist item:**
+- [ ] All production hostnames (apex + subdomains used for the SPA) added to **Authorized domains** for project `dia-care-86f57`.
+- [ ] App tested once from each prod hostname to confirm the popup opens.
+- [ ] The dev hosts (`localhost`, `127.0.0.1`, any LAN IP used for phone testing) added for the dev/staging project.
+
 ---
 
 ## 14. Quick Reference
@@ -715,9 +752,10 @@ Glucose, weight, and meal logs are mirrored to `localStorage` in plaintext. On a
 | Add a chart | `reports.js` (Chart.js) — see existing `monthlyTrendChart` |
 | Export a new PDF | `reports.js` `btn-export-pdf` handler (html2pdf.js) |
 | Fix the chatbot | All 4 JS files (must stay in sync) |
+| Add a Firebase Auth host | Firebase Console → Authentication → Settings → Authorized domains (see §13.7) |
 | Run locally | VS Code → Right-click `index.html` → Open with Live Server (port 5501) |
 | Run backend | `cd "C:\Users\DELL\Desktop\project_final\DiaCare-Project" && npm install && node "front/log in/server.js"` |
 
 ---
 
-*Last updated: 2026-06-06. If the project structure changes, update sections §2 (Directory Map), §3 (Key Files), and §12 (Do-Not-Break List) at minimum.*
+*Last updated: 2026-06-06. If the project structure changes, update sections §2 (Directory Map), §3 (Key Files), and §12 (Do-Not-Break List) at minimum. New since 2026-06-06: §13.7 (Firebase Auth authorized domains — fixes `auth/unauthorized-domain`); `script.js` adds `auth/unauthorized-domain` and `auth/popup-blocked` to `ERROR_MAP`, logs `window.location.origin` on Google sign-in errors, and warns when the page is loaded from a raw IP host.*

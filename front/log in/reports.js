@@ -206,25 +206,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const ctx = document.getElementById('monthlyTrendChart');
         if (ctx && glucoseLogs.length > 0) {
-            glucoseLogs.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
-            const recentLogs = glucoseLogs.slice(-30);
             const isAr = document.documentElement.getAttribute('lang') === 'ar';
 
-            const labels = recentLogs.map((log, index) => {
-                if (log.timestamp) {
-                    const d = new Date(log.timestamp);
-                    return `${d.getDate()}/${d.getMonth() + 1}`;
-                }
-                return `Q${index + 1}`;
+            // Group readings by date (YYYY-MM-DD) and compute daily averages
+            const dailyMap = {};
+            glucoseLogs.forEach(log => {
+                if (!log.timestamp) return;
+                const dateKey = new Date(log.timestamp).toISOString().split('T')[0];
+                if (!dailyMap[dateKey]) dailyMap[dateKey] = { sum: 0, count: 0 };
+                dailyMap[dateKey].sum += log.value;
+                dailyMap[dateKey].count++;
             });
-            const dataPoints = recentLogs.map(log => log.value);
+
+            const dailyAverages = Object.keys(dailyMap)
+                .sort()
+                .map(dateKey => {
+                    const [y, m, d] = dateKey.split('-');
+                    return {
+                        date: dateKey,
+                        label: `${d}/${m}`,
+                        avg: Math.round(dailyMap[dateKey].sum / dailyMap[dateKey].count),
+                        count: dailyMap[dateKey].count
+                    };
+                })
+                .slice(-30);
+
+            const labels = dailyAverages.map(d => d.label);
+            const dataPoints = dailyAverages.map(d => d.avg);
+            const readingCounts = dailyAverages.map(d => d.count);
             const pointColors = dataPoints.map(v => (v < 70 || v > 180) ? '#ef4444' : '#6a3ec4');
+
+            const makeTooltipLabel = () => function (context) {
+                const idx = context.dataIndex;
+                const avg = dataPoints[idx];
+                const count = readingCounts[idx];
+                return isAr
+                    ? `المتوسط: ${avg} mg/dL (من ${count} قراءات)`
+                    : `Avg: ${avg} mg/dL (from ${count} readings)`;
+            };
 
             if (reportChartInstance) {
                 reportChartInstance.data.labels = labels;
                 reportChartInstance.data.datasets[0].data = dataPoints;
                 reportChartInstance.data.datasets[0].pointBackgroundColor = pointColors;
                 reportChartInstance.data.datasets[0].label = isAr ? 'السكر (mg/dL)' : 'Glucose (mg/dL)';
+                reportChartInstance.options.plugins.tooltip.callbacks.label = makeTooltipLabel();
                 reportChartInstance.update();
             } else {
                 reportChartInstance = new Chart(ctx, {
@@ -247,7 +273,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: { y: { suggestedMin: 50, suggestedMax: 250 } },
-                        plugins: { legend: { display: false } }
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: makeTooltipLabel()
+                                }
+                            }
+                        }
                     }
                 });
             }
