@@ -536,21 +536,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
             setButtonLoading(googleBtn, true);
-            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            if (isMobile) {
-                await signInWithRedirect(auth, provider);
-            } else {
-                const result = await signInWithPopup(auth, provider);
-                if (result?.user) await finishGoogleSignIn(result.user);
-            }
+            await signInWithRedirect(auth, provider);
         } catch (err) {
             console.error('Google sign-in error:', err);
-            showFormError(loginForm, err.code || 'auth/popup-closed-by-user');
+            showFormError(loginForm, err.code || 'auth/unauthorized-domain');
             setButtonLoading(googleBtn, false);
         }
     });
 
-    // Handle redirect result (mobile flow) on page load
+    // Handle redirect result on page load (works for all browsers)
     getRedirectResult(auth).then(async (result) => {
         if (result?.user) {
             await finishGoogleSignIn(result.user);
