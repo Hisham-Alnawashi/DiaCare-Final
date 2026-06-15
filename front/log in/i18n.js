@@ -176,11 +176,6 @@ const dictionary = {
     'passwordPlaceholder': { en: '••••••••', ar: '••••••••' },
     'termsText': { en: 'By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.', ar: 'بإنشائك حساباً، فأنت توافق على <a href="#">شروط الاستخدام</a> و<a href="#">سياسة الخصوصية</a>.' },
 
-    // Social login
-    'orContinueWith': { en: 'or continue with', ar: 'أو تابع باستخدام' },
-    'continueWithGoogle': { en: 'Continue with Google', ar: 'متابعة باستخدام Google' },
-    'signUpWithGoogle': { en: 'Sign up with Google', ar: 'إنشاء حساب باستخدام Google' },
-
     // Password visibility
     'showPassword': { en: 'Show password', ar: 'إظهار كلمة المرور' },
     'hidePassword': { en: 'Hide password', ar: 'إخفاء كلمة المرور' },

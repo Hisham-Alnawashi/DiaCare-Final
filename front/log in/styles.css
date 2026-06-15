@@ -1196,40 +1196,6 @@ select.is-valid {
     background: var(--border);
 }
 
-/* Google sign-in button */
-.btn-google {
-    width: 100%;
-    padding: 0.85rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-main);
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-    font-family: inherit;
-}
-
-.btn-google img {
-    width: 18px;
-    height: 18px;
-}
-
-.btn-google:hover {
-    background: var(--input-bg);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.btn-google:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
 /* Password strength meter */
 .strength-meter {
     height: 6px;
@@ -1274,7 +1240,6 @@ select.is-valid {
 }
 
 .tab:focus-visible,
-.btn-google:focus-visible,
 .btn-primary:focus-visible {
     outline-offset: 0;
 }

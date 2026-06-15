@@ -1,5 +1,5 @@
 import { auth, db } from "./firebase-config.js";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import { doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 console.log('DiaCare script loaded!');
@@ -147,10 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'auth/weak-password':          { en: 'Password must be at least 8 characters.', ar: 'يجب أن تكون كلمة المرور 8 أحرف على الأقل.' },
         'auth/too-many-requests':      { en: 'Too many attempts. Please wait a few minutes.', ar: 'محاولات كثيرة. الرجاء الانتظار بضع دقائق.' },
         'auth/network-request-failed': { en: 'Network error. Check your connection.', ar: 'خطأ في الشبكة. تحقق من اتصالك.' },
-        'auth/popup-closed-by-user':   { en: 'Google sign-in was cancelled.', ar: 'تم إلغاء تسجيل الدخول عبر Google.' },
-        'auth/operation-not-allowed':  { en: 'Google sign-in is not enabled. Please contact support.', ar: 'تسجيل الدخول عبر Google غير مفعّل. الرجاء التواصل مع الدعم.' },
-        'auth/configuration-not-found': { en: 'Google sign-in is not configured. Please contact support.', ar: 'تسجيل الدخول عبر Google غير مكوّن. الرجاء التواصل مع الدعم.' },
-        'auth/unauthorized-domain':    { en: 'This domain is not authorized for sign-in. Contact support.', ar: 'هذا النطاق غير مصرّح به لتسجيل الدخول. الرجاء التواصل مع الدعم.' }
     };
     const FALLBACK_ERROR = { en: 'An unexpected error occurred.', ar: 'حدث خطأ غير متوقع.' };
 
@@ -496,65 +492,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // ==========================================
-    // Google sign-in (redirect-only for cross-browser reliability)
-    // ==========================================
-    const googleBtn = document.getElementById('google-login');
-    async function handleGoogleProfile(user) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) {
-            const displayName = user.displayName || 'User';
-            const fname = displayName.split(' ')[0] || 'User';
-            await setDoc(doc(db, "users", user.uid), {
-                fname: fname,
-                type: 'type1',
-                email: user.email,
-                createdAt: new Date().toISOString()
-            });
-            localStorage.setItem('diacare_user_fname', fname);
-            localStorage.setItem('diacare_diabetes_type', 'type1');
-        } else {
-            const userData = userDoc.data();
-            localStorage.setItem('diacare_user_fname', userData.fname);
-            localStorage.setItem('diacare_diabetes_type', userData.type);
-        }
-        localStorage.setItem('diacare_user_email', user.email);
-    }
-    async function finishGoogleSignIn(user) {
-        await handleGoogleProfile(user);
-        await window.DiaCareDB.syncLogs('db_glucose');
-        await window.DiaCareDB.syncLogs('db_weight');
-        await window.DiaCareDB.syncLogs('db_meals');
-        const lang = getLang();
-        showToast(lang === 'ar' ? 'تم تسجيل الدخول عبر Google' : 'Signed in with Google', 'success');
-        setTimeout(() => { window.location.href = 'dashboard.html'; }, 350);
-    }
-    googleBtn?.addEventListener('click', async () => {
-        try {
-            clearFormError(loginForm);
-            const provider = new GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: 'select_account' });
-            setButtonLoading(googleBtn, true);
-            await signInWithRedirect(auth, provider);
-        } catch (err) {
-            console.error('Google sign-in error:', err);
-            showFormError(loginForm, err.code || 'auth/unauthorized-domain');
-            setButtonLoading(googleBtn, false);
-        }
-    });
-
-    // Handle redirect result on page load (works for all browsers)
-    getRedirectResult(auth).then(async (result) => {
-        if (result?.user) {
-            await finishGoogleSignIn(result.user);
-        }
-    }).catch((err) => {
-        if (err && err.code) {
-            console.error('Redirect result error:', err);
-            showFormError(loginForm, err.code);
-        }
-    });
 
     // --- AI Chatbot Shared Logic for Index ---
     if (window.chatBotAttached) return;
