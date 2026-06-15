@@ -531,22 +531,21 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { window.location.href = 'dashboard.html'; }, 350);
     }
     googleBtn?.addEventListener('click', async () => {
-        clearFormError(loginFormEl);
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-        setButtonLoading(googleBtn, true);
         try {
+            clearFormError(loginForm);
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            setButtonLoading(googleBtn, true);
             const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
             if (isMobile) {
                 await signInWithRedirect(auth, provider);
-                // Result handled on next page load via getRedirectResult below
             } else {
                 const result = await signInWithPopup(auth, provider);
                 if (result?.user) await finishGoogleSignIn(result.user);
             }
         } catch (err) {
             console.error('Google sign-in error:', err);
-            showFormError(loginFormEl, err.code || 'auth/popup-closed-by-user');
+            showFormError(loginForm, err.code || 'auth/popup-closed-by-user');
             setButtonLoading(googleBtn, false);
         }
     });
@@ -559,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).catch((err) => {
         if (err && err.code) {
             console.error('Redirect result error:', err);
-            showFormError(loginFormEl, err.code);
+            showFormError(loginForm, err.code);
         }
     });
 
