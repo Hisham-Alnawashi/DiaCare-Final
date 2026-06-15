@@ -1,5 +1,5 @@
 import { auth, db } from "./firebase-config.js";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import { doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 console.log('DiaCare script loaded!');
@@ -498,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // Google sign-in (popup on desktop, redirect on mobile)
+    // Google sign-in (redirect-only for cross-browser reliability)
     // ==========================================
     const googleBtn = document.getElementById('google-login');
     async function handleGoogleProfile(user) {
